@@ -1,6 +1,6 @@
 ===============================================================================
 
-                     Scalingo Database Cloner Installation Complete!
+                     Scalingo Staging Sync Installation Complete!
 
 ===============================================================================
 
@@ -15,16 +15,16 @@ NEXT STEPS:
    - Configure seeds_file_path if you want to run seeds after cloning
 
 2. Test your configuration:
-   bundle exec rake scalingo_staging_sync:test_clone
+   bundle exec rake scalingo_staging_sync:check
 
 3. Run database clone:
-   bundle exec rake scalingo_staging_sync:clone
+   bundle exec rake scalingo_staging_sync:run
 
 4. For automated scheduling, create cron.json at project root:
    {
      "jobs": [
        {
-         "command": "0 7 * * 0 bundle exec rake scalingo_staging_sync:clone",
+         "command": "0 7 * * 0 bundle exec rake scalingo_staging_sync:run",
          "size": "2XL"
        }
      ]

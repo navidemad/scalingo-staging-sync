@@ -14,13 +14,17 @@ module ScalingoStagingSync
     config_accessor :slack_enabled, default: false
     config_accessor :exclude_tables, default: []
     config_accessor :parallel_connections, default: 3
-    config_accessor :logger do
-      defined?(Rails) ? Rails.logger : Logger.new($stdout)
-    end
-    config_accessor :temp_dir do
-      defined?(Rails) ? Rails.root.join("tmp") : Dir.tmpdir
-    end
+    config_accessor :logger, default: nil
+    config_accessor :temp_dir, default: nil
     config_accessor :seeds_file_path, default: nil
+
+    def logger
+      @logger ||= Rails.logger
+    end
+
+    def temp_dir
+      @temp_dir ||= Rails.root.join("tmp")
+    end
 
     def target_app
       ENV.fetch("APP") do

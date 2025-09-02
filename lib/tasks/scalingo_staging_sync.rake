@@ -11,14 +11,14 @@ namespace :scalingo_staging_sync do
   end
 
   desc "Sync and anonymize Scalingo production database to staging"
-  task sync: :environment do
+  task run: :environment do
     # The configuration is loaded from config/initializers/scalingo_staging_sync.rb
     coordinator = ScalingoStagingSync::Services::Coordinator.new
     coordinator.execute!
   end
 
-  desc "Test Scalingo staging sync configuration and safety checks"
-  task test_sync: :environment do
+  desc "Check Scalingo staging sync configuration and safety checks"
+  task check: :environment do
     ScalingoStagingSync::Testing::Tester.new.run_tests!
   end
 end

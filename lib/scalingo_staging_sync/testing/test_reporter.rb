@@ -93,19 +93,19 @@ module ScalingoStagingSync
       end
 
       def print_success_message
-        Rails.logger.debug "✅ ALL CRITICAL TESTS PASSED - Ready for staging sync!"
-        Rails.logger.debug "Run: bundle exec rake staging_sync:sync"
-        @logger.info "[Tester] ✅ System ready for staging sync"
+        Rails.logger.debug "✅ ALL CRITICAL TESTS PASSED - Ready for staging scalingo_staging_sync:run!"
+        Rails.logger.debug "Run: bundle exec rake scalingo_staging_sync:run"
+        @logger.info "[Tester] ✅ System ready for staging scalingo_staging_sync:run"
       end
 
       def print_failure_message
-        Rails.logger.debug "❌ CRITICAL ISSUES DETECTED - Fix before running sync"
-        @logger.error "[Tester] ❌ Critical issues detected - cannot proceed with sync"
+        Rails.logger.debug "❌ CRITICAL ISSUES DETECTED - Fix before running scalingo_staging_sync:run"
+        @logger.error "[Tester] ❌ Critical issues detected - cannot proceed with scalingo_staging_sync:run"
       end
 
       def print_warning_message
-        Rails.logger.debug "⚠️  WARNINGS DETECTED - Review before running staging sync"
-        Rails.logger.debug "Run with caution: bundle exec rake staging_sync:sync"
+        Rails.logger.debug "⚠️  WARNINGS DETECTED - Review before running staging scalingo_staging_sync:run"
+        Rails.logger.debug "Run with caution: bundle exec rake scalingo_staging_sync:run"
         @logger.warn "[Tester] ⚠️  Warnings detected - review before proceeding"
       end
 
