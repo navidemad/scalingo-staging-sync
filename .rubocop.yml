@@ -73,6 +73,10 @@ Metrics/ParameterLists:
 Minitest/EmptyLineBeforeAssertionMethods:
   Enabled: false
 
+Naming/FileName:
+  Exclude:
+    - lib/scalingo-staging-sync.rb
+
 Naming/MemoizedInstanceVariableName:
   Enabled: false
 

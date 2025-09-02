@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/scalingo/staging_sync/version"
+require_relative "lib/scalingo_staging_sync/version"
 
 Gem::Specification.new do |spec|
   spec.name = "scalingo-staging-sync"
-  spec.version = Scalingo::StagingSync::VERSION
+  spec.version = ScalingoStagingSync::VERSION
   spec.authors = ["Navid EMAD"]
   spec.email = ["navid.emad@yespark.fr"]
 
@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
 
   # Runtime dependencies
   spec.add_dependency "pg"
+  spec.add_dependency "rails"
   spec.add_dependency "scalingo"
   spec.add_dependency "zeitwerk"
 end

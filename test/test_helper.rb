@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
-require "scalingo/staging_sync"
+require "scalingo_staging_sync"
 
 require "minitest/autorun"
 require "minitest/mock"
@@ -17,7 +17,7 @@ module TestHelpers
   def setup
     super
     # Reset configuration before each test
-    Scalingo::StagingSync.reset_configuration!
+    ScalingoStagingSync.reset_configuration!
 
     # Set up test environment variables
     @original_env = {}

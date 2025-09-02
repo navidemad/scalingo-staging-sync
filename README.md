@@ -29,12 +29,15 @@ Configure the gem in your Rails initializer:
 
 ```ruby
 # config/initializers/scalingo_staging_sync.rb
-Scalingo::StagingSync.configure do |config|
+ScalingoStagingSync.configure do |config|
   config.clone_source_scalingo_app_name = "dummy-demo" # Scalingo app to clone from
   config.target_app = "dummy-staging" # Or use ENV["APP"] automatically
   config.slack_channel = "#deployments"
   config.slack_enabled = true
-  config.exclude_tables = ["temp_data", "audit_logs"]
+  config.exclude_tables = [
+    "temp_data",
+    "audit_logs",
+  ]
   config.parallel_connections = 4
 end
 ```
@@ -43,10 +46,10 @@ end
 
 ```bash
 # Clone production database to current environment
-bundle exec rake scalingo_database:clone
+bundle exec rake scalingo_staging_sync:clone
 
 # Test configuration and safety checks
-bundle exec rake scalingo_database:test_clone
+bundle exec rake scalingo_staging_sync:test_clone
 ```
 
 ## Scheduling with Cron

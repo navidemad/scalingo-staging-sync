@@ -34,20 +34,20 @@ This is a Ruby gem called `scalingo-staging-sync` that handles cloning and anony
 ## Architecture
 
 ### Module Structure
-- `Scalingo::StagingSync` - Main namespace module with autoloading and configuration
-- `Scalingo::StagingSync::Configuration` - Configuration management
-- `Scalingo::StagingSync::Coordinator` - Main orchestrator for cloning process
-- `Scalingo::StagingSync::DatabaseBackupService` - Handles Scalingo backup downloads
-- `Scalingo::StagingSync::DatabaseRestoreService` - Database restoration with filtering
-- `Scalingo::StagingSync::DatabaseAnonymizerService` - Parallel data anonymization
-- `Scalingo::StagingSync::SlackNotificationService` - Status notifications to Slack
-- `Scalingo::StagingSync::SlackWebhookClient` - Internal HTTP client for Slack
-- `Scalingo::StagingSync::Tester` - Configuration and safety testing
+- `ScalingoStagingSync` - Main namespace module with autoloading and configuration
+- `ScalingoStagingSync::Configuration` - Configuration management
+- `ScalingoStagingSync::Coordinator` - Main orchestrator for cloning process
+- `ScalingoStagingSync::DatabaseBackupService` - Handles Scalingo backup downloads
+- `ScalingoStagingSync::DatabaseRestoreService` - Database restoration with filtering
+- `ScalingoStagingSync::DatabaseAnonymizerService` - Parallel data anonymization
+- `ScalingoStagingSync::SlackNotificationService` - Status notifications to Slack
+- `ScalingoStagingSync::SlackWebhookClient` - Internal HTTP client for Slack
+- `ScalingoStagingSync::Tester` - Configuration and safety testing
 
 ### Key Files
-- `lib/scalingo/staging_sync.rb` - Main entry point with autoload and configuration setup
-- `lib/scalingo/staging_sync/version.rb` - Version definition
-- `test/scalingo/staging_sync/version_test.rb` - Basic test ensuring version exists
+- `lib/scalingo_staging_sync.rb` - Main entry point with autoload and configuration setup
+- `lib/scalingo_staging_sync/version.rb` - Version definition
+- `test/scalingo_staging_sync/version_test.rb` - Basic test ensuring version exists
 
 ### Core Features
 - **Database Cloning**: Downloads backups from Scalingo production environments
@@ -83,12 +83,15 @@ When used in a Rails application, configure in initializer:
 
 ```ruby
 # config/initializers/scalingo_staging_sync.rb
-Scalingo::StagingSync.configure do |config|
+ScalingoStagingSync.configure do |config|
   config.clone_source_scalingo_app_name = "dummy-demo"        # Scalingo app to clone from
   # target_app automatically uses ENV["APP"] - not configurable
   config.slack_channel = "#deployments"
   config.slack_enabled = true
-  config.exclude_tables = ["temp_data", "audit_logs"]
+  config.exclude_tables = [
+    "temp_data",
+    "audit_logs",
+  ]
   config.parallel_connections = 4
 end
 ```
