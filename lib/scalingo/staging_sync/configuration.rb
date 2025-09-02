@@ -4,8 +4,7 @@ require "tmpdir"
 require "logger"
 
 module Scalingo
-  module Database
-    module Cloner
+  module StagingSync
       class Configuration
         attr_accessor :clone_source_scalingo_app_name,
                       :slack_webhook_url,

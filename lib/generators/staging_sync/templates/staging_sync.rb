@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-# Configure the Scalingo Database Cloner
+# Configure the Scalingo Staging Sync
 #
-# This gem clones and anonymizes Scalingo production databases for safe use in staging/demo environments.
+# This gem syncs and anonymizes Scalingo production databases for safe use in staging/demo environments.
 #
-# For more information, see: https://github.com/navidemad/scalingo-database-cloner
+# For more information, see: https://github.com/navidemad/scalingo-staging-sync
 
-Scalingo::Database::Cloner.configure do |config|
+Scalingo::StagingSync.configure do |config|
   # Required: Scalingo app to clone from (app name)
   config.clone_source_scalingo_app_name = "your-production-app"
 

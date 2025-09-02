@@ -5,8 +5,7 @@ require "json"
 require "uri"
 
 module Scalingo
-  module Database
-    module Cloner
+  module StagingSync
       class SlackWebhookClient
         def initialize(webhook_url, logger: Rails.logger)
           @webhook_url = webhook_url

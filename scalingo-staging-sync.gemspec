@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
-require_relative "lib/scalingo/database/cloner/version"
+require_relative "lib/scalingo/staging_sync/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "scalingo-database-cloner"
-  spec.version = Scalingo::Database::Cloner::VERSION
+  spec.name = "scalingo-staging-sync"
+  spec.version = Scalingo::StagingSync::VERSION
   spec.authors = ["Navid EMAD"]
   spec.email = ["navid.emad@yespark.fr"]
 
-  spec.summary = "Scalingo database cloner with anonymization for staging environments"
-  spec.description = "Clone and anonymize Scalingo production databases for safe use in staging/demo environments"
-  spec.homepage = "https://github.com/navidemad/scalingo-database-cloner"
+  spec.summary = "Scalingo database syncer with anonymization for staging environments"
+  spec.description = "Sync and anonymize Scalingo production databases for safe use in staging/demo environments"
+  spec.homepage = "https://github.com/navidemad/scalingo-staging-sync"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1"
 
   spec.metadata = {
-    "bug_tracker_uri" => "https://github.com/navidemad/scalingo-database-cloner/issues",
-    "changelog_uri" => "https://github.com/navidemad/scalingo-database-cloner/releases",
-    "source_code_uri" => "https://github.com/navidemad/scalingo-database-cloner",
+    "bug_tracker_uri" => "https://github.com/navidemad/scalingo-staging-sync/issues",
+    "changelog_uri" => "https://github.com/navidemad/scalingo-staging-sync/releases",
+    "source_code_uri" => "https://github.com/navidemad/scalingo-staging-sync",
     "homepage_uri" => spec.homepage,
     "rubygems_mfa_required" => "true"
   }
