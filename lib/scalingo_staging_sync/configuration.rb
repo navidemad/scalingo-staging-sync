@@ -1,32 +1,26 @@
 # frozen_string_literal: true
 
+require "active_support/configurable"
 require "tmpdir"
 require "logger"
 
 module ScalingoStagingSync
   class Configuration
-    attr_accessor :clone_source_scalingo_app_name,
-                  :slack_webhook_url,
-                  :slack_channel,
-                  :slack_enabled,
-                  :exclude_tables,
-                  :parallel_connections,
-                  :logger,
-                  :temp_dir,
-                  :seeds_file_path
+    include ActiveSupport::Configurable
 
-    # Default values
-    def initialize
-      @clone_source_scalingo_app_name = "your-production-app"
-      @slack_webhook_url = nil
-      @slack_channel = nil
-      @slack_enabled = false
-      @exclude_tables = []
-      @parallel_connections = 3
-      @logger = defined?(Rails) ? Rails.logger : Logger.new($stdout)
-      @temp_dir = defined?(Rails) ? Rails.root.join("tmp") : Dir.tmpdir
-      @seeds_file_path = nil
+    config_accessor :clone_source_scalingo_app_name, default: "your-production-app"
+    config_accessor :slack_webhook_url, default: nil
+    config_accessor :slack_channel, default: nil
+    config_accessor :slack_enabled, default: false
+    config_accessor :exclude_tables, default: []
+    config_accessor :parallel_connections, default: 3
+    config_accessor :logger do
+      defined?(Rails) ? Rails.logger : Logger.new($stdout)
     end
+    config_accessor :temp_dir do
+      defined?(Rails) ? Rails.root.join("tmp") : Dir.tmpdir
+    end
+    config_accessor :seeds_file_path, default: nil
 
     def target_app
       ENV.fetch("APP") do
