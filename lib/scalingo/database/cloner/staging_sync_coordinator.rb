@@ -10,7 +10,6 @@ module Scalingo
             # Legacy support for hash configuration
             @config = Scalingo::Database::Cloner.configuration
             @config.source_app = legacy_config["source_app"] if legacy_config["source_app"]
-            @config.target_app = legacy_config["target_app"] if legacy_config["target_app"]
             @legacy_config = legacy_config
           else
             @config = legacy_config || Scalingo::Database::Cloner.configuration

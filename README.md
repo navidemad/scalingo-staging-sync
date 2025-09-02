@@ -8,26 +8,20 @@ Clone and anonymize Scalingo production databases for safe use in staging/demo e
 
 **Requirements:** PostgreSQL 16.x databases
 
----
-
-- [scalingo-database-cloner](#scalingo-database-cloner)
-  - [Quick start](#quick-start)
-  - [Configuration](#configuration)
-  - [Workflow](#workflow)
-  - [Support](#support)
-  - [License](#license)
-  - [Code of conduct](#code-of-conduct)
-  - [Contribution guide](#contribution-guide)
-
 ## Quick start
 
+Add the gem to your Gemfile inside your staging environment:
 ```
-gem install scalingo-database-cloner
+gem 'scalingo-database-cloner', group: 'staging'
 ```
 
+enable the gem with generate command
+
 ```ruby
-require "scalingo/database/cloner"
+bundle exec rails generate scalingo_database_cloner:install
 ```
+
+The generate command will auto generate the default configuration and may ask to include in the test environment as well. See below for custom configuration.
 
 ## Configuration
 
@@ -36,8 +30,8 @@ Configure the gem in your Rails initializer:
 ```ruby
 # config/initializers/scalingo_database_cloner.rb
 Scalingo::Database::Cloner.configure do |config|
-  config.source_app = "yespark-demo"        # Scalingo app to clone from
-  config.target_app = "yespark-staging"     # Or use ENV["APP"] automatically
+  config.source_app = "dummy-demo" # Scalingo app to clone from
+  config.target_app = "dummy-staging" # Or use ENV["APP"] automatically
   config.slack_channel = "#deployments"
   config.slack_enabled = true
   config.exclude_tables = ["temp_data", "audit_logs"]

@@ -1,8 +1,16 @@
 # frozen_string_literal: true
 
+require "zeitwerk"
+
+loader = Zeitwerk::Loader.for_gem
+loader.ignore("#{__dir__}/generators")
+loader.setup
+
 module Scalingo
   module Database
     module Cloner
+      class Error < StandardError; end
+
       autoload :VERSION, "scalingo/database/cloner/version"
       autoload :Configuration, "scalingo/database/cloner/configuration"
       autoload :SlackWebhookClient, "scalingo/database/cloner/slack_webhook_client"
@@ -12,9 +20,6 @@ module Scalingo
       autoload :SlackNotificationService, "scalingo/database/cloner/slack_notification_service"
       autoload :StagingSyncCoordinator, "scalingo/database/cloner/staging_sync_coordinator"
       autoload :StagingSyncTester, "scalingo/database/cloner/staging_sync_tester"
-
-      class Error < StandardError; end
-
       class << self
         attr_writer :configuration
 
@@ -33,3 +38,6 @@ module Scalingo
     end
   end
 end
+
+# Load Railtie if Rails is available
+require "scalingo/database/clone/railtie" if defined?(Rails)
