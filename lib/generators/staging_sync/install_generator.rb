@@ -11,7 +11,7 @@ module Scalingo
         desc "Create Scalingo Staging Sync initializer"
 
         def create_initializer_file
-          template "staging_sync.rb", "config/initializers/staging_sync.rb"
+          template "staging_sync.rb", "config/initializers/scalingo_staging_sync.rb"
         end
 
         def show_readme

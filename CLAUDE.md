@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Ruby gem called `scalingo-database-cloner` that handles cloning and anonymizing Scalingo production databases for safe use in staging/demo environments. The gem provides a comprehensive solution for safely syncing production data to staging environments with built-in anonymization and safety checks.
+This is a Ruby gem called `scalingo-staging-sync` that handles cloning and anonymizing Scalingo production databases for safe use in staging/demo environments. The gem provides a comprehensive solution for safely syncing production data to staging environments with built-in anonymization and safety checks.
 
 ## Common Commands
 
@@ -28,27 +28,27 @@ This is a Ruby gem called `scalingo-database-cloner` that handles cloning and an
 - `bundle exec rake bump` - Update Ruby version dependencies and year in license
 
 ### Database Cloning (when integrated in Rails app)
-- `bundle exec rake scalingo_database:clone` - Clone production database to current environment
-- `bundle exec rake scalingo_database:test_clone` - Test configuration and safety checks
+- `bundle exec rake scalingo_staging_sync:clone` - Clone production database to current environment
+- `bundle exec rake scalingo_staging_sync:test_clone` - Test configuration and safety checks
 
 ## Architecture
 
 ### Module Structure
-- `Scalingo::Database::Cloner` - Main namespace module with autoloading and configuration
-- `Scalingo::Database::Cloner::Configuration` - Configuration management
-- `Scalingo::Database::Cloner::StagingSyncCoordinator` - Main orchestrator for cloning process
-- `Scalingo::Database::Cloner::DatabaseBackupService` - Handles Scalingo backup downloads
-- `Scalingo::Database::Cloner::DatabaseRestoreService` - Database restoration with filtering
-- `Scalingo::Database::Cloner::DatabaseAnonymizerService` - Parallel data anonymization
-- `Scalingo::Database::Cloner::SlackNotificationService` - Status notifications to Slack
-- `Scalingo::Database::Cloner::SlackWebhookClient` - Internal HTTP client for Slack
-- `Scalingo::Database::Cloner::StagingSyncTester` - Configuration and safety testing
-- `Scalingo::Database::Cloner::VERSION` - Version constant
+- `Scalingo::StagingSync` - Main namespace module with autoloading and configuration
+- `Scalingo::StagingSync::Configuration` - Configuration management
+- `Scalingo::StagingSync::StagingSyncCoordinator` - Main orchestrator for cloning process
+- `Scalingo::StagingSync::DatabaseBackupService` - Handles Scalingo backup downloads
+- `Scalingo::StagingSync::DatabaseRestoreService` - Database restoration with filtering
+- `Scalingo::StagingSync::DatabaseAnonymizerService` - Parallel data anonymization
+- `Scalingo::StagingSync::SlackNotificationService` - Status notifications to Slack
+- `Scalingo::StagingSync::SlackWebhookClient` - Internal HTTP client for Slack
+- `Scalingo::StagingSync::StagingSyncTester` - Configuration and safety testing
+- `Scalingo::StagingSync::VERSION` - Version constant
 
 ### Key Files
-- `lib/scalingo/database/cloner.rb` - Main entry point with autoload and configuration setup
-- `lib/scalingo/database/cloner/version.rb` - Version definition
-- `test/scalingo/database/cloner_test.rb` - Basic test ensuring version exists
+- `lib/scalingo/staging_sync/cloner.rb` - Main entry point with autoload and configuration setup
+- `lib/scalingo/staging_sync/cloner/version.rb` - Version definition
+- `test/scalingo/staging_sync/cloner_test.rb` - Basic test ensuring version exists
 
 ### Core Features
 - **Database Cloning**: Downloads backups from Scalingo production environments
@@ -83,8 +83,8 @@ This is a Ruby gem called `scalingo-database-cloner` that handles cloning and an
 When used in a Rails application, configure in initializer:
 
 ```ruby
-# config/initializers/scalingo_database_cloner.rb
-ScalingoDatabaseCloner.configure do |config|
+# config/initializers/scalingo_staging_sync.rb
+Scalingo::StagingSync.configure do |config|
   config.clone_source_scalingo_app_name = "dummy-demo"        # Scalingo app to clone from
   # target_app automatically uses ENV["APP"] - not configurable
   config.slack_channel = "#deployments"

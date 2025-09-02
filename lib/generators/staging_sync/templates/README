@@ -4,33 +4,33 @@
 
 ===============================================================================
 
-Configuration file created: config/initializers/scalingo_database_cloner.rb
+Configuration file created: config/initializers/scalingo_staging_sync.rb
 
 NEXT STEPS:
 
-1. Edit config/initializers/scalingo_database_cloner.rb:
+1. Edit config/initializers/scalingo_staging_sync.rb:
    - Set your clone_source_scalingo_app_name (the Scalingo app to clone from)  
    - Configure Slack integration: set slack_webhook_url if using Slack notifications
    - Set exclude_tables if needed
    - Configure seeds_file_path if you want to run seeds after cloning
 
 2. Test your configuration:
-   bundle exec rake scalingo_database_cloner:test_clone
+   bundle exec rake scalingo_staging_sync:test_clone
 
 3. Run database clone:
-   bundle exec rake scalingo_database_cloner:clone
+   bundle exec rake scalingo_staging_sync:clone
 
 4. For automated scheduling, create cron.json at project root:
    {
      "jobs": [
        {
-         "command": "0 7 * * 0 bundle exec rake scalingo_database_cloner:clone",
+         "command": "0 7 * * 0 bundle exec rake scalingo_staging_sync:clone",
          "size": "2XL"
        }
      ]
    }
 
 For full documentation, visit:
-https://github.com/navidemad/scalingo-database-cloner
+https://github.com/navidemad/scalingo-staging-sync
 
 ===============================================================================

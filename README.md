@@ -1,8 +1,8 @@
-# scalingo-database-cloner
+# scalingo-staging-sync
 
-[![Gem Version](https://img.shields.io/gem/v/scalingo-database-cloner)](https://rubygems.org/gems/scalingo-database-cloner)
-[![Gem Downloads](https://img.shields.io/gem/dt/scalingo-database-cloner)](https://www.ruby-toolbox.com/projects/scalingo-database-cloner)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/navidemad/scalingo-database-cloner/ci.yml)](https://github.com/navidemad/scalingo-database-cloner/actions/workflows/ci.yml)
+[![Gem Version](https://img.shields.io/gem/v/scalingo-staging-sync)](https://rubygems.org/gems/scalingo-staging-sync)
+[![Gem Downloads](https://img.shields.io/gem/dt/scalingo-staging-sync)](https://www.ruby-toolbox.com/projects/scalingo-staging-sync)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/navidemad/scalingo-staging-sync/ci.yml)](https://github.com/navidemad/scalingo-staging-sync/actions/workflows/ci.yml)
 
 Clone and anonymize Scalingo production databases for safe use in staging/demo environments
 
@@ -12,13 +12,13 @@ Clone and anonymize Scalingo production databases for safe use in staging/demo e
 
 Add the gem to your Gemfile inside your staging environment:
 ```ruby
-gem 'scalingo-database-cloner', group: 'staging'
+gem 'scalingo-staging-sync', group: 'staging'
 ```
 
 enable the gem with generate command
 
 ```bash
-bundle exec rails generate scalingo_database_cloner:install
+bundle exec rails generate scalingo_staging_sync:install
 ```
 
 The generate command will auto generate the default configuration and may ask to include in the test environment as well. See below for custom configuration.
@@ -28,8 +28,8 @@ The generate command will auto generate the default configuration and may ask to
 Configure the gem in your Rails initializer:
 
 ```ruby
-# config/initializers/scalingo_database_cloner.rb
-Scalingo::Database::Cloner.configure do |config|
+# config/initializers/scalingo_staging_sync.rb
+Scalingo::StagingSync.configure do |config|
   config.clone_source_scalingo_app_name = "dummy-demo" # Scalingo app to clone from
   config.target_app = "dummy-staging" # Or use ENV["APP"] automatically
   config.slack_channel = "#deployments"
@@ -57,7 +57,7 @@ For automated database cloning, create a `cron.json` file at the root of your pr
 {
   "jobs": [
     {
-      "command": "0 7 * * 0 bundle exec rake scalingo_database_cloner:clone",
+      "command": "0 7 * * 0 bundle exec rake scalingo_staging_sync:clone",
       "size": "2XL"
     }
   ]
@@ -129,7 +129,7 @@ flowchart TD
 
 ## Support
 
-If you want to report a bug, or have ideas, feedback or questions about the gem, [let me know via GitHub issues](https://github.com/navidemad/scalingo-database-cloner/issues/new) and I will do my best to provide a helpful answer. Happy hacking!
+If you want to report a bug, or have ideas, feedback or questions about the gem, [let me know via GitHub issues](https://github.com/navidemad/scalingo-staging-sync/issues/new) and I will do my best to provide a helpful answer. Happy hacking!
 
 ## License
 

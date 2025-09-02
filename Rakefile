@@ -18,7 +18,7 @@ task default: %i[test rubocop]
 
 Rake::Task["release"].enhance do
   puts "Don't forget to publish the release on GitHub!"
-  system "open https://github.com/navidemad/scalingo-database-cloner/releases"
+  system "open https://github.com/navidemad/scalingo-staging-sync/releases"
 end
 
 task :disable_overcommit do
@@ -29,13 +29,13 @@ Rake::Task[:build].enhance [:disable_overcommit]
 
 task :verify_gemspec_files do
   git_files = `git ls-files -z`.split("\x0")
-  gemspec_files = Gem::Specification.load("scalingo-database-cloner.gemspec").files.sort
+  gemspec_files = Gem::Specification.load("scalingo-staging-sync.gemspec").files.sort
   ignored_by_git = gemspec_files - git_files
   next if ignored_by_git.empty?
 
   raise <<~ERROR
 
-    The `spec.files` specified in scalingo-database-cloner.gemspec include the following files
+    The `spec.files` specified in scalingo-staging-sync.gemspec include the following files
     that are being ignored by git. Did you forget to add them to the repo? If
     not, you may need to delete these files or modify the gemspec to ensure
     that they are not included in the gem by mistake:
@@ -57,7 +57,7 @@ namespace :bump do
   end
 
   task :ruby do
-    replace_in_file "scalingo-database-cloner.gemspec", /ruby_version = .*">= (.*)"/ => RubyVersions.lowest
+    replace_in_file "scalingo-staging-sync.gemspec", /ruby_version = .*">= (.*)"/ => RubyVersions.lowest
     replace_in_file ".rubocop.yml", /TargetRubyVersion: (.*)/ => RubyVersions.lowest
     replace_in_file ".github/workflows/ci.yml", /ruby: (\[.+\])/ => RubyVersions.all.inspect
   end
