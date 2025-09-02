@@ -85,7 +85,7 @@ When used in a Rails application, configure in initializer:
 ```ruby
 # config/initializers/scalingo_database_cloner.rb
 ScalingoDatabaseCloner.configure do |config|
-  config.source_app = "dummy-demo"        # Scalingo app to clone from
+  config.clone_source_scalingo_app_name = "dummy-demo"        # Scalingo app to clone from
   # target_app automatically uses ENV["APP"] - not configurable
   config.slack_channel = "#deployments"
   config.slack_enabled = true
@@ -95,7 +95,7 @@ end
 ```
 
 ### Configuration Options
-- `source_app`: Scalingo app to clone from
+- `clone_source_scalingo_app_name`: Scalingo app to clone from
 - `target_app`: Always uses ENV["APP"] (not configurable)
 - `slack_webhook_url`: Webhook for Slack notifications
 - `slack_channel`: Slack channel for notifications

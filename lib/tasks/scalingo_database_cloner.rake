@@ -1,30 +1,19 @@
+# frozen_string_literal: true
+
 namespace :scalingo_database_cloner do
-  desc "Install"
+  desc "Install Scalingo Database Cloner configuration"
   task :install do
-    puts "LogBench Configuration Instructions:"
+    puts "Please use the Rails generator instead:"
     puts
-    puts "LogBench is automatically enabled in development!"
-    puts "Just restart your Rails server and it will work."
+    puts "  bundle exec rails generate scalingo_database_cloner:install"
     puts
-    puts "For customization or other environments, see:"
-    puts "https://github.com/silva96/log_bench#configuration"
+    puts "This will create the configuration file and show setup instructions."
   end
 
   desc "Clone and anonymize Scalingo production database to staging"
   task clone: :environment do
     # The configuration is loaded from config/initializers/scalingo_database_cloner.rb
-    # For backward compatibility, also check for legacy config file
-    legacy_config_file = Rails.root.join("config/demo_database_sync.yml")
-
-    if File.exist?(legacy_config_file)
-      # Legacy support: Load configuration from YAML file
-      config = YAML.load_file(legacy_config_file)
-      coordinator = ScalingoDatabaseCloner::StagingSyncCoordinator.new(config)
-    else
-      # Use the configured settings from the initializer
-      coordinator = ScalingoDatabaseCloner::StagingSyncCoordinator.new
-    end
-
+    coordinator = ScalingoDatabaseCloner::StagingSyncCoordinator.new
     coordinator.execute!
   end
 

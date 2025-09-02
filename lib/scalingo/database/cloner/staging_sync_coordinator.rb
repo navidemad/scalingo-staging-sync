@@ -4,17 +4,8 @@ module Scalingo
   module Database
     module Cloner
       class StagingSyncCoordinator
-        def initialize(legacy_config=nil, logger: nil)
-          # Support both old hash-based config and new configuration object
-          if legacy_config.is_a?(Hash)
-            # Legacy support for hash configuration
-            @config = Scalingo::Database::Cloner.configuration
-            @config.source_app = legacy_config["source_app"] if legacy_config["source_app"]
-            @legacy_config = legacy_config
-          else
-            @config = legacy_config || Scalingo::Database::Cloner.configuration
-            @legacy_config = nil
-          end
+        def initialize(logger: nil)
+          @config = Scalingo::Database::Cloner.configuration
 
           @logger = logger || @config.logger
           @temp_dir = @config.temp_dir
@@ -23,7 +14,7 @@ module Scalingo
 
           # Get app names from configuration
           @target_app = @config.target_app
-          @source_app = @config.source_app
+          @source_app = @config.clone_source_scalingo_app_name
 
           # Log which source is being used for target_app
           if ENV["APP"]
@@ -40,10 +31,8 @@ module Scalingo
             @logger.info "[StagingSyncCoordinator] Starting staging sync process"
             @logger.info "[StagingSyncCoordinator] Source: #{@source_app}"
             @logger.info "[StagingSyncCoordinator] Target: #{@target_app}"
-            @logger.info "[StagingSyncCoordinator] Seeds: #{@config.seeds_file_path || @legacy_config&.dig(
-              'seeds',
-              'file_path'
-            )} will run"
+            seeds_status = @config.seeds_file_path ? "#{@config.seeds_file_path} will run" : "none configured"
+            @logger.info "[StagingSyncCoordinator] Seeds: #{seeds_status}"
 
             notify_start
 
@@ -121,7 +110,7 @@ module Scalingo
 
           service = Scalingo::Database::Cloner::DatabaseRestoreService.new(@database_url, logger: @logger)
 
-          exclude_tables = @config.exclude_tables || @legacy_config&.dig("database", "exclude_tables") || []
+          exclude_tables = @config.exclude_tables || []
           @logger.info "[StagingSyncCoordinator] Excluded tables: #{exclude_tables.join(', ')}" if exclude_tables.any?
 
           @logger.info "[StagingSyncCoordinator] Calling restore! with backup file: #{backup_file}"
@@ -146,18 +135,20 @@ module Scalingo
           notify_step("🌱 *Étape 4/4*: Création comptes de test")
           @logger.info "[StagingSyncCoordinator] Running staging seeds"
 
-          staging_seeds_path = @config.seeds_file_path || @legacy_config&.dig(
-            "seeds",
-            "file_path"
-          ) || Rails.root.join("db/seeds/staging.rb")
-          if File.exist?(staging_seeds_path)
-            @logger.info "[StagingSyncCoordinator] Loading seeds from: #{staging_seeds_path}"
-            load staging_seeds_path
+          if @config.seeds_file_path.nil?
+            @logger.info "[StagingSyncCoordinator] No seeds file configured - skipping seeding step"
+            @slack_notifier.coordinator_step("⚠️ Aucun fichier de seeds configuré")
+            return
+          end
+
+          if File.exist?(@config.seeds_file_path)
+            @logger.info "[StagingSyncCoordinator] Loading seeds from: #{@config.seeds_file_path}"
+            load @config.seeds_file_path
             @logger.info "[StagingSyncCoordinator] ✓ Staging seeds executed successfully"
             @slack_notifier.coordinator_step("✓ Comptes de test créés")
           else
-            @logger.warn "[StagingSyncCoordinator] Staging seeds file not found: #{staging_seeds_path}"
-            @slack_notifier.coordinator_step("⚠️ Fichier seeds introuvable")
+            @logger.warn "[StagingSyncCoordinator] Configured seeds file not found: #{@config.seeds_file_path}"
+            @slack_notifier.coordinator_step("⚠️ Fichier seeds configuré introuvable")
           end
         end
 

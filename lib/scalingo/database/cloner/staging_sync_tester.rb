@@ -71,7 +71,10 @@ module Scalingo
         end
 
         def validate_config_keys
-          required_keys = { "target_app" => "Target application name", "source_app" => "Source application name" }
+          required_keys = {
+            "target_app" => "Target application name",
+            "clone_source_scalingo_app_name" => "Clone source Scalingo app name"
+          }
 
           required_keys.each do |key, description|
             fail "Missing config: #{key}" unless @config[key].present?

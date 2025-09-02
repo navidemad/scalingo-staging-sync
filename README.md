@@ -30,7 +30,7 @@ Configure the gem in your Rails initializer:
 ```ruby
 # config/initializers/scalingo_database_cloner.rb
 Scalingo::Database::Cloner.configure do |config|
-  config.source_app = "dummy-demo" # Scalingo app to clone from
+  config.clone_source_scalingo_app_name = "dummy-demo" # Scalingo app to clone from
   config.target_app = "dummy-staging" # Or use ENV["APP"] automatically
   config.slack_channel = "#deployments"
   config.slack_enabled = true
@@ -48,6 +48,32 @@ bundle exec rake scalingo_database:clone
 # Test configuration and safety checks
 bundle exec rake scalingo_database:test_clone
 ```
+
+## Scheduling with Cron
+
+For automated database cloning, create a `cron.json` file at the root of your project to schedule the clone task:
+
+```json
+{
+  "jobs": [
+    {
+      "command": "0 7 * * 0 bundle exec rake scalingo_database_cloner:clone",
+      "size": "2XL"
+    }
+  ]
+}
+```
+
+This example runs the database clone every Sunday at 7:00 AM. Adjust the cron expression and dyno size according to your needs:
+
+- **Cron format**: `minute hour day-of-month month day-of-week`
+- **Size**: Choose appropriate dyno size (S, M, L, XL, 2XL, etc.) based on your database size
+- **Common schedules**:
+  - `0 7 * * 0` - Every Sunday at 7:00 AM
+  - `0 2 * * 1` - Every Monday at 2:00 AM  
+  - `0 8 */3 * *` - Every 3 days at 8:00 AM
+
+Note: The cron job will only run in environments where the gem is installed (typically staging environments).
 
 ## Workflow
 
