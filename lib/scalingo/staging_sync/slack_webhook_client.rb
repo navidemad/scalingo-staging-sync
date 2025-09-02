@@ -30,18 +30,36 @@ module Scalingo
       end
 
       def send_webhook(payload)
+        response = execute_http_request(payload)
+        handle_response(response)
+      rescue StandardError => e
+        @logger.error "[SlackWebhookClient] Error sending Slack notification: #{e.message}"
+        false
+      end
+
+      def execute_http_request(payload)
         uri = URI.parse(@webhook_url)
+        http = create_http_client(uri)
+        request = build_request(uri, payload)
+        http.request(request)
+      end
+
+      def create_http_client(uri)
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
         http.read_timeout = 10
         http.open_timeout = 10
+        http
+      end
 
+      def build_request(uri, payload)
         request = Net::HTTP::Post.new(uri.request_uri)
         request["Content-Type"] = "application/json"
         request.body = payload.to_json
+        request
+      end
 
-        response = http.request(request)
-
+      def handle_response(response)
         if response.code.to_i == 200
           @logger.debug "[SlackWebhookClient] Message sent successfully"
           true
@@ -49,9 +67,6 @@ module Scalingo
           @logger.error "[SlackWebhookClient] Failed to send message: #{response.code} - #{response.body}"
           false
         end
-      rescue StandardError => e
-        @logger.error "[SlackWebhookClient] Error sending Slack notification: #{e.message}"
-        false
       end
     end
   end

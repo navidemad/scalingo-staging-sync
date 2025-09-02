@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 
+require_relative "slack_message_formatter"
+require_relative "slack_service_delegates"
+
 module Scalingo
   module StagingSync
     class SlackNotificationService
+      include SlackMessageFormatter
+      include SlackServiceDelegates
+
       def initialize(logger: nil)
         @config = Scalingo::StagingSync.configuration
         @logger = logger || @config.logger
@@ -56,39 +62,6 @@ module Scalingo
         @logger.warn "[SlackNotificationService] Failed to send warning notification: #{e.message}"
       end
 
-      # Service-specific methods for different components
-      def anonymizer_step(message)
-        notify_step(message, context: "")
-      end
-
-      def anonymizer_error(message)
-        notify_warning(message, context: "⚠️")
-      end
-
-      def backup_step(message)
-        notify_step(message, context: "")
-      end
-
-      def backup_error(message)
-        notify_warning(message, context: "⚠️")
-      end
-
-      def restore_step(message)
-        notify_step(message, context: "")
-      end
-
-      def restore_error(message)
-        notify_warning(message, context: "⚠️")
-      end
-
-      def coordinator_step(message)
-        notify_step(message, context: "")
-      end
-
-      def coordinator_error(message)
-        notify_warning(message, context: "⚠️")
-      end
-
       private
 
       def slack_enabled?
@@ -110,52 +83,6 @@ module Scalingo
         options[:channel] = channel
 
         @slack_client.post_message(message, options)
-      end
-
-      def format_success_message(duration_minutes, source_app, target_app)
-        [
-          "✅ *Synchronisation Staging Réussie*",
-          "",
-          "• Durée: #{duration_minutes} minutes",
-          "• Source: #{source_app}",
-          "• Cible: #{target_app}",
-          "• Anonymisation: ✅ Appliquée",
-          "• Seeds: ✅ Exécutés",
-          "",
-          "URL de test: https://#{target_app}.osc-fr1.scalingo.io"
-        ].join("\n")
-      end
-
-      def format_failure_message(error_message, target_app)
-        [
-          "❌ *Échec Synchronisation Staging*",
-          "",
-          "• Erreur: #{error_message}",
-          "• App cible: #{target_app}",
-          "",
-          "Action requise: Vérifier les logs Scalingo",
-          "```",
-          "scalingo -a #{target_app} logs --lines 500",
-          "```"
-        ].join("\n")
-      end
-
-      def format_warning_message(warning_message)
-        [
-          "⚠️ *Avertissement Synchronisation Staging*",
-          "",
-          warning_message.to_s,
-          "",
-          "La synchronisation a continué malgré cet avertissement."
-        ].join("\n")
-      end
-
-      def build_message(message, context)
-        context ? "#{context} #{message}" : message
-      end
-
-      def build_error_message(error_message, context)
-        context ? "#{context}: #{error_message}" : error_message
       end
     end
   end

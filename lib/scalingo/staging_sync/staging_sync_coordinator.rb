@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 
+require_relative "environment_validator"
+require_relative "coordinator_helpers"
+
 module Scalingo
   module StagingSync
     class StagingSyncCoordinator
+      include EnvironmentValidator
+      include CoordinatorHelpers
+
       def initialize(logger: nil)
         @config = Scalingo::StagingSync.configuration
 
@@ -27,68 +33,44 @@ module Scalingo
         validate_environment!
 
         @logger.tagged("DEMO_SYNC") do
-          @logger.info "[StagingSyncCoordinator] Starting staging sync process"
-          @logger.info "[StagingSyncCoordinator] Source: #{@source_app}"
-          @logger.info "[StagingSyncCoordinator] Target: #{@target_app}"
-          seeds_status = @config.seeds_file_path ? "#{@config.seeds_file_path} will run" : "none configured"
-          @logger.info "[StagingSyncCoordinator] Seeds: #{seeds_status}"
-
+          log_sync_start
           notify_start
 
-          # Step 1: Download backup
-          @logger.info "[StagingSyncCoordinator] Step 1: Downloading backup"
-          backup_file = download_backup
-
-          # Step 2: Restore database
-          @logger.info "[StagingSyncCoordinator] Step 2: Restoring database"
-          restore_database(backup_file)
-
-          # Step 3: Anonymize data
-          @logger.info "[StagingSyncCoordinator] Step 3: Anonymizing data"
-          anonymize_data
-
-          # Step 4: Run seeds
-          @logger.info "[StagingSyncCoordinator] Step 4: Running staging seeds"
-          run_staging_seeds
-
-          # Success!
-          notify_success
-          cleanup_temp_files
-
-          duration = ((Time.current - @start_time) / 60).round(2)
-          @logger.info "[StagingSyncCoordinator] ✅ Staging sync completed successfully in #{duration} minutes"
+          perform_sync_steps
+          finalize_sync
         end
       rescue StandardError => e
         handle_error(e)
       end
 
-      private
-
-      def validate_environment!
-        @logger.info "[StagingSyncCoordinator] Validating environment and safety checks..."
-
-        if Rails.env.production?
-          @logger.error "[StagingSyncCoordinator] CRITICAL: Attempted to run in production environment!"
-          raise "CRITICAL: Cannot run in production!"
-        end
-        @logger.info "[StagingSyncCoordinator] ✓ Rails environment check passed: #{Rails.env}"
-
-        if ENV["APP"]&.include?("prod")
-          @logger.error "[StagingSyncCoordinator] App name contains 'prod': #{ENV.fetch('APP', nil)}"
-          raise "App name contains 'prod' - stopping for safety"
-        end
-        @logger.info "[StagingSyncCoordinator] ✓ App name check passed: #{ENV['APP'] || 'not set'}"
-
-        database_url = ENV["DATABASE_URL"] || ENV.fetch("SCALINGO_POSTGRESQL_URL", nil)
-        unless database_url
-          @logger.error "[StagingSyncCoordinator] No database URL found in environment"
-          raise "No DATABASE_URL found"
-        end
-
-        @database_url = database_url
-        @logger.info "[StagingSyncCoordinator] ✓ Database URL configured"
-        @logger.info "[StagingSyncCoordinator] All safety checks passed - proceeding with sync"
+      def log_sync_start
+        @logger.info "[StagingSyncCoordinator] Starting staging sync process"
+        @logger.info "[StagingSyncCoordinator] Source: #{@source_app}"
+        @logger.info "[StagingSyncCoordinator] Target: #{@target_app}"
+        seeds_status = @config.seeds_file_path ? "#{@config.seeds_file_path} will run" : "none configured"
+        @logger.info "[StagingSyncCoordinator] Seeds: #{seeds_status}"
       end
+
+      def perform_sync_steps
+        backup_file = execute_step(1, "Downloading backup") { download_backup }
+        execute_step(2, "Restoring database") { restore_database(backup_file) }
+        execute_step(3, "Anonymizing data") { anonymize_data }
+        execute_step(4, "Running staging seeds") { run_staging_seeds }
+      end
+
+      def execute_step(step_number, description)
+        @logger.info "[StagingSyncCoordinator] Step #{step_number}: #{description}"
+        yield
+      end
+
+      def finalize_sync
+        notify_success
+        cleanup_temp_files
+        duration = ((Time.current - @start_time) / 60).round(2)
+        @logger.info "[StagingSyncCoordinator] ✅ Staging sync completed successfully in #{duration} minutes"
+      end
+
+      private
 
       def download_backup
         notify_step("📥 *Étape 1/4*: Téléchargement sauvegarde")
@@ -151,55 +133,7 @@ module Scalingo
         end
       end
 
-      def cleanup_temp_files
-        @logger.info "[StagingSyncCoordinator] Cleaning up temporary files..."
-
-        temp_files =
-          %w[production.tar.gz production.dump production.pgsql latest.pgsql filtered.toc].map do |f|
-            @temp_dir.join(f)
-          end
-
-        cleaned_count = 0
-        temp_files.each do |file|
-          next unless File.exist?(file)
-
-          FileUtils.rm_f(file)
-          cleaned_count += 1
-          @logger.debug "[StagingSyncCoordinator] Removed: #{file}"
-        end
-
-        @logger.info "[StagingSyncCoordinator] Cleaned up #{cleaned_count} temporary files"
-      end
-
-      def notify_start
-        message = "🚀 Démarrage (Application cible: #{@target_app})"
-        @logger.info "[StagingSyncCoordinator] Sending start notification: #{message}"
-        @slack_notifier.coordinator_step(message)
-      end
-
-      def notify_step(message)
-        @logger.info "[StagingSyncCoordinator] #{message}"
-        @slack_notifier.coordinator_step(message)
-      end
-
-      def notify_success
-        duration_minutes = ((Time.current - @start_time) / 60).round
-
-        @logger.info "[StagingSyncCoordinator] Sync completed in #{duration_minutes} minutes"
-
-        @slack_notifier.notify_success(duration_minutes, @source_app, @target_app)
-      end
-
-      def handle_error(error)
-        @logger.error "[StagingSyncCoordinator] Staging sync failed: #{error.message}"
-        @logger.error "[StagingSyncCoordinator] Backtrace:\n#{error.backtrace.first(10).join("\n")}"
-
-        @slack_notifier.notify_failure(error.message, @target_app)
-
-        @logger.info "[StagingSyncCoordinator] Performing emergency cleanup..."
-        cleanup_temp_files
-        raise error
-      end
+      # Notification and cleanup methods are provided by CoordinatorHelpers module
     end
   end
 end
