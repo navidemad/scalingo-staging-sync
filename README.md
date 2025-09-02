@@ -11,13 +11,13 @@ Clone and anonymize Scalingo production databases for safe use in staging/demo e
 ## Quick start
 
 Add the gem to your Gemfile inside your staging environment:
-```
+```ruby
 gem 'scalingo-database-cloner', group: 'staging'
 ```
 
 enable the gem with generate command
 
-```ruby
+```bash
 bundle exec rails generate scalingo_database_cloner:install
 ```
 

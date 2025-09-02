@@ -17,8 +17,8 @@ module Scalingo
                       :temp_dir,
                       :seeds_file_path
 
+        # Default values
         def initialize
-          # Default values
           @clone_source_scalingo_app_name = "your-production-app"
           @slack_webhook_url = nil
           @slack_channel = nil
@@ -30,7 +30,6 @@ module Scalingo
           @seeds_file_path = nil
         end
 
-
         def target_app
           ENV.fetch("APP") do
             raise ArgumentError,
@@ -38,8 +37,6 @@ module Scalingo
                   "This should be automatically available on Scalingo instances."
           end
         end
-
-        private
       end
     end
   end
