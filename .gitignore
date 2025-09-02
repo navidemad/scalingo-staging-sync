@@ -8,4 +8,5 @@
 /spec/reports/
 /tmp/
 /Gemfile.lock
+/scalingo_staging_sync_test
 *.gem

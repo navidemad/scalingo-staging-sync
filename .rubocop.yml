@@ -85,6 +85,13 @@ Naming/VariableNumber:
 Rake/Desc:
   Enabled: false
 
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/FetchEnvVar:
+  Exclude:
+    - test/test_helper.rb
+
 Style/BarePercentLiterals:
   EnforcedStyle: percent_q
 

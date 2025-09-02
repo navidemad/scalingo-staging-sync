@@ -101,7 +101,7 @@ module Scalingo
         @slack_notifier.backup_step("📦 Extraction de l'archive...")
 
         log_context(:info, "Running tar extraction command")
-        success = system("tar -xzf \"#{archive}\"" )
+        success = system("tar -xzf \"#{archive}\"")
         raise BackupError, "Failed to extract archive: #{archive}" unless success
 
         log_context(:info, "Archive extraction completed successfully")
@@ -199,7 +199,7 @@ module Scalingo
           url_host: URI(download_url).host
         )
 
-        filename = "backup-" + Time.zone.now.strftime('%Y%m%d-%H%M%S') + ".tar.gz"
+        filename = "backup-" + Time.zone.now.strftime("%Y%m%d-%H%M%S") + ".tar.gz"
 
         log_context(
           :info,

@@ -43,12 +43,11 @@ This is a Ruby gem called `scalingo-staging-sync` that handles cloning and anony
 - `Scalingo::StagingSync::SlackNotificationService` - Status notifications to Slack
 - `Scalingo::StagingSync::SlackWebhookClient` - Internal HTTP client for Slack
 - `Scalingo::StagingSync::StagingSyncTester` - Configuration and safety testing
-- `Scalingo::StagingSync::VERSION` - Version constant
 
 ### Key Files
-- `lib/scalingo/staging_sync/cloner.rb` - Main entry point with autoload and configuration setup
-- `lib/scalingo/staging_sync/cloner/version.rb` - Version definition
-- `test/scalingo/staging_sync/cloner_test.rb` - Basic test ensuring version exists
+- `lib/scalingo/staging_sync.rb` - Main entry point with autoload and configuration setup
+- `lib/scalingo/staging_sync/version.rb` - Version definition
+- `test/scalingo/staging_sync/version_test.rb` - Basic test ensuring version exists
 
 ### Core Features
 - **Database Cloning**: Downloads backups from Scalingo production environments
