@@ -33,7 +33,7 @@ module Scalingo
       end
 
       def display_summary
-        @logger.info "[StagingSyncTester] Generating test summary..."
+        @logger.info "[Tester] Generating test summary..."
 
         print_summary_header
         print_summary_stats
@@ -95,18 +95,18 @@ module Scalingo
       def print_success_message
         Rails.logger.debug "✅ ALL CRITICAL TESTS PASSED - Ready for staging sync!"
         Rails.logger.debug "Run: bundle exec rake staging_sync:sync"
-        @logger.info "[StagingSyncTester] ✅ System ready for staging sync"
+        @logger.info "[Tester] ✅ System ready for staging sync"
       end
 
       def print_failure_message
         Rails.logger.debug "❌ CRITICAL ISSUES DETECTED - Fix before running sync"
-        @logger.error "[StagingSyncTester] ❌ Critical issues detected - cannot proceed with sync"
+        @logger.error "[Tester] ❌ Critical issues detected - cannot proceed with sync"
       end
 
       def print_warning_message
         Rails.logger.debug "⚠️  WARNINGS DETECTED - Review before running staging sync"
         Rails.logger.debug "Run with caution: bundle exec rake staging_sync:sync"
-        @logger.warn "[StagingSyncTester] ⚠️  Warnings detected - review before proceeding"
+        @logger.warn "[Tester] ⚠️  Warnings detected - review before proceeding"
       end
 
       def failures?

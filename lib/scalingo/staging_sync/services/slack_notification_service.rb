@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "slack_message_formatter"
-require_relative "slack_service_delegates"
+require_relative "../integrations/slack_message_formatter"
+require_relative "../integrations/slack_service_delegates"
 
 module Scalingo
   module StagingSync

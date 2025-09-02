@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "open3"
-require_relative "database_operations"
-require_relative "toc_filter"
-require_relative "restore_command_builder"
+require_relative "../database/database_operations"
+require_relative "../database/toc_filter"
+require_relative "../database/restore_command_builder"
 
 module Scalingo
   module StagingSync

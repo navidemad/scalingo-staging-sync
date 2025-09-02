@@ -11,7 +11,7 @@ module Scalingo
       include DatabaseInfoLogger
 
       def test_required_tools
-        @logger.info "[StagingSyncTester] Testing required tools availability..."
+        @logger.info "[Tester] Testing required tools availability..."
         section_header("Required Tools")
 
         tools_config.each do |name, config|
@@ -20,13 +20,13 @@ module Scalingo
       end
 
       def test_database_connectivity
-        @logger.info "[StagingSyncTester] Testing database connectivity..."
+        @logger.info "[Tester] Testing database connectivity..."
         section_header("Database Connectivity")
 
         database_url = ENV["DATABASE_URL"] || ENV.fetch("SCALINGO_POSTGRESQL_URL", nil)
 
         if database_url.blank?
-          @logger.error "[StagingSyncTester] No database URL available for testing"
+          @logger.error "[Tester] No database URL available for testing"
           raise "Cannot test - no database URL"
         end
 
@@ -34,7 +34,7 @@ module Scalingo
       end
 
       def test_permissions
-        @logger.info "[StagingSyncTester] Testing file system permissions..."
+        @logger.info "[Tester] Testing file system permissions..."
         section_header("File System Permissions")
 
         test_temp_directory_permissions
@@ -49,13 +49,13 @@ module Scalingo
         if system(config[:command], out: File::NULL, err: File::NULL)
           version = `#{config[:version_command]} 2>/dev/null`.strip.split("\n").first
           pass "#{name}: Available (#{version})"
-          @logger.info "[StagingSyncTester] Tool available: #{name} - #{version}"
+          @logger.info "[Tester] Tool available: #{name} - #{version}"
         elsif config[:required]
-          @logger.error "[StagingSyncTester] Required tool missing: #{name}"
+          @logger.error "[Tester] Required tool missing: #{name}"
           raise "#{name}: Not found (REQUIRED)"
         else
           warn "#{name}: Not found (optional)"
-          @logger.warn "[StagingSyncTester] Optional tool missing: #{name}"
+          @logger.warn "[Tester] Optional tool missing: #{name}"
         end
       end
 
@@ -72,12 +72,12 @@ module Scalingo
 
         log_database_info(connection)
         connection.close
-        @logger.info "[StagingSyncTester] Database connection test completed successfully"
+        @logger.info "[Tester] Database connection test completed successfully"
       rescue PG::Error => e
-        @logger.error "[StagingSyncTester] Database connection failed: #{e.message}"
+        @logger.error "[Tester] Database connection failed: #{e.message}"
         raise "Database connection failed: #{e.message}"
       rescue StandardError => e
-        @logger.error "[StagingSyncTester] Unexpected error during database test: #{e.message}"
+        @logger.error "[Tester] Unexpected error during database test: #{e.message}"
         raise "Unexpected error: #{e.message}"
       end
 
@@ -87,9 +87,9 @@ module Scalingo
         temp_dir = Rails.root.join("tmp")
         if File.writable?(temp_dir)
           pass "Temp directory writable: #{temp_dir}"
-          @logger.info "[StagingSyncTester] Temp directory is writable: #{temp_dir}"
+          @logger.info "[Tester] Temp directory is writable: #{temp_dir}"
         else
-          @logger.error "[StagingSyncTester] Temp directory is not writable: #{temp_dir}"
+          @logger.error "[Tester] Temp directory is not writable: #{temp_dir}"
           raise "Temp directory not writable: #{temp_dir}"
         end
       end

@@ -5,18 +5,18 @@ module Scalingo
     # Module for configuration file testing
     module ConfigTests
       def test_configuration_file
-        @logger.info "[StagingSyncTester] Testing configuration file..."
+        @logger.info "[Tester] Testing configuration file..."
         section_header("Configuration File")
 
         if File.exist?(@config_file)
           load_and_validate_config
         else
-          @logger.error "[StagingSyncTester] Config file not found: #{@config_file}"
+          @logger.error "[Tester] Config file not found: #{@config_file}"
           @config = {}
           raise "scalingo_staging_sync.yml not found at #{@config_file}"
         end
       rescue StandardError => e
-        @logger.error "[StagingSyncTester] Failed to load config: #{e.message}"
+        @logger.error "[Tester] Failed to load config: #{e.message}"
         @config = {}
         raise "Error loading config: #{e.message}"
       end
@@ -26,7 +26,7 @@ module Scalingo
       def load_and_validate_config
         @config = YAML.load_file(@config_file)
         pass "scalingo_staging_sync.yml found"
-        @logger.info "[StagingSyncTester] Config file loaded successfully from #{@config_file}"
+        @logger.info "[Tester] Config file loaded successfully from #{@config_file}"
         validate_config_keys
       end
 

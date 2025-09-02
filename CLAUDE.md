@@ -36,13 +36,13 @@ This is a Ruby gem called `scalingo-staging-sync` that handles cloning and anony
 ### Module Structure
 - `Scalingo::StagingSync` - Main namespace module with autoloading and configuration
 - `Scalingo::StagingSync::Configuration` - Configuration management
-- `Scalingo::StagingSync::StagingSyncCoordinator` - Main orchestrator for cloning process
+- `Scalingo::StagingSync::Coordinator` - Main orchestrator for cloning process
 - `Scalingo::StagingSync::DatabaseBackupService` - Handles Scalingo backup downloads
 - `Scalingo::StagingSync::DatabaseRestoreService` - Database restoration with filtering
 - `Scalingo::StagingSync::DatabaseAnonymizerService` - Parallel data anonymization
 - `Scalingo::StagingSync::SlackNotificationService` - Status notifications to Slack
 - `Scalingo::StagingSync::SlackWebhookClient` - Internal HTTP client for Slack
-- `Scalingo::StagingSync::StagingSyncTester` - Configuration and safety testing
+- `Scalingo::StagingSync::Tester` - Configuration and safety testing
 
 ### Key Files
 - `lib/scalingo/staging_sync.rb` - Main entry point with autoload and configuration setup

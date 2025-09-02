@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "anonymization_queries"
-require_relative "parallel_processor"
-require_relative "table_anonymizer"
+require_relative "../database/anonymization_queries"
+require_relative "../support/parallel_processor"
+require_relative "../database/table_anonymizer"
 
 module Scalingo
   module StagingSync

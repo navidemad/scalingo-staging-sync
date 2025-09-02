@@ -5,42 +5,42 @@ module Scalingo
     # Module for environment validation and safety checks
     module EnvironmentValidator
       def validate_environment!
-        @logger.info "[StagingSyncCoordinator] Validating environment and safety checks..."
+        @logger.info "[Coordinator] Validating environment and safety checks..."
 
         validate_rails_environment
         validate_app_name
         validate_database_url
 
-        @logger.info "[StagingSyncCoordinator] All safety checks passed - proceeding with sync"
+        @logger.info "[Coordinator] All safety checks passed - proceeding with sync"
       end
 
       private
 
       def validate_rails_environment
         if Rails.env.production?
-          @logger.error "[StagingSyncCoordinator] CRITICAL: Attempted to run in production environment!"
+          @logger.error "[Coordinator] CRITICAL: Attempted to run in production environment!"
           raise "CRITICAL: Cannot run in production!"
         end
-        @logger.info "[StagingSyncCoordinator] ✓ Rails environment check passed: #{Rails.env}"
+        @logger.info "[Coordinator] ✓ Rails environment check passed: #{Rails.env}"
       end
 
       def validate_app_name
         if ENV["APP"]&.include?("prod")
-          @logger.error "[StagingSyncCoordinator] App name contains 'prod': #{ENV.fetch('APP', nil)}"
+          @logger.error "[Coordinator] App name contains 'prod': #{ENV.fetch('APP', nil)}"
           raise "App name contains 'prod' - stopping for safety"
         end
-        @logger.info "[StagingSyncCoordinator] ✓ App name check passed: #{ENV['APP'] || 'not set'}"
+        @logger.info "[Coordinator] ✓ App name check passed: #{ENV['APP'] || 'not set'}"
       end
 
       def validate_database_url
         database_url = ENV["DATABASE_URL"] || ENV.fetch("SCALINGO_POSTGRESQL_URL", nil)
         unless database_url
-          @logger.error "[StagingSyncCoordinator] No database URL found in environment"
+          @logger.error "[Coordinator] No database URL found in environment"
           raise "No DATABASE_URL found"
         end
 
         @database_url = database_url
-        @logger.info "[StagingSyncCoordinator] ✓ Database URL configured"
+        @logger.info "[Coordinator] ✓ Database URL configured"
       end
     end
   end

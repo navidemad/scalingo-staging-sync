@@ -121,7 +121,7 @@ flowchart TD
 
 ### Key Components
 
-- **StagingSyncCoordinator**: Orchestrates the entire process
+- **Coordinator**: Orchestrates the entire process
 - **DatabaseBackupService**: Handles Scalingo API interactions and backup downloads
 - **DatabaseRestoreService**: Manages database restoration with table filtering
 - **DatabaseAnonymizerService**: Anonymizes sensitive data in parallel

@@ -17,7 +17,7 @@ module Scalingo
         result = connection.exec("SELECT version()")
         pg_version = result.first["version"].split[1]
         pass "PostgreSQL connection successful (v#{pg_version})"
-        @logger.info "[StagingSyncTester] PostgreSQL connection successful - version #{pg_version}"
+        @logger.info "[Tester] PostgreSQL connection successful - version #{pg_version}"
       end
 
       def log_database_size(connection)

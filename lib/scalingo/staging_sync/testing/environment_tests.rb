@@ -5,7 +5,7 @@ module Scalingo
     # Module for environment and security testing
     module EnvironmentTests
       def test_security_guards
-        @logger.info "[StagingSyncTester] Testing security guards..."
+        @logger.info "[Tester] Testing security guards..."
         section_header("Security Guards")
 
         test_rails_environment
@@ -13,7 +13,7 @@ module Scalingo
       end
 
       def test_environment_variables
-        @logger.info "[StagingSyncTester] Testing environment variables..."
+        @logger.info "[Tester] Testing environment variables..."
         section_header("Environment Variables")
 
         test_database_urls
@@ -24,28 +24,28 @@ module Scalingo
 
       def test_rails_environment
         if Rails.env.production?
-          @logger.critical "[StagingSyncTester] CRITICAL: Rails.env is PRODUCTION!"
+          @logger.critical "[Tester] CRITICAL: Rails.env is PRODUCTION!"
           Rails.logger.debug "  ⚠️  NEVER run staging sync in production environment!"
           @slack_notifier.notify_warning("🔴 CRITICAL: Production environment detected!", context: "[Tester]")
           raise "Rails.env is PRODUCTION - THIS IS CRITICAL!"
         else
           pass "Rails.env: #{Rails.env} (safe)"
-          @logger.info "[StagingSyncTester] Rails environment safe: #{Rails.env}"
+          @logger.info "[Tester] Rails environment safe: #{Rails.env}"
         end
       end
 
       def test_app_environment_variable
         if ENV["APP"].present?
           if ENV["APP"].include?("prod")
-            @logger.error "[StagingSyncTester] APP variable contains 'prod': #{ENV['APP']}"
+            @logger.error "[Tester] APP variable contains 'prod': #{ENV['APP']}"
             raise "APP contains 'prod': #{ENV['APP']}"
           else
             pass "APP: #{ENV['APP']} (safe)"
-            @logger.info "[StagingSyncTester] APP variable safe: #{ENV['APP']}"
+            @logger.info "[Tester] APP variable safe: #{ENV['APP']}"
           end
         else
           info "  APP: not set"
-          @logger.debug "[StagingSyncTester] APP environment variable not set"
+          @logger.debug "[Tester] APP environment variable not set"
         end
       end
 
@@ -67,10 +67,10 @@ module Scalingo
       def test_scalingo_api_token
         if ENV["SCALINGO_API_TOKEN"].present?
           pass "SCALINGO_API_TOKEN is set"
-          @logger.info "[StagingSyncTester] Scalingo API token configured"
+          @logger.info "[Tester] Scalingo API token configured"
         else
           warn "SCALINGO_API_TOKEN not set (may be needed for backup downloads)"
-          @logger.warn "[StagingSyncTester] Scalingo API token not configured - backup downloads may fail"
+          @logger.warn "[Tester] Scalingo API token not configured - backup downloads may fail"
         end
       end
 

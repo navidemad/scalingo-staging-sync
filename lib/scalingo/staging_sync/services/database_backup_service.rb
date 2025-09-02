@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require "fileutils"
-require_relative "utilities"
-require_relative "scalingo_api_client"
-require_relative "file_downloader"
-require_relative "archive_handler"
+require_relative "../support/utilities"
+require_relative "../integrations/scalingo_api_client"
+require_relative "../support/file_downloader"
+require_relative "../support/archive_handler"
 
 module Scalingo
   module StagingSync

@@ -3,6 +3,12 @@
 require "zeitwerk"
 
 loader = Zeitwerk::Loader.for_gem
+loader.push_dir("#{__dir__}/staging_sync", namespace: Scalingo::StagingSync)
+loader.push_dir("#{__dir__}/staging_sync/services", namespace: Scalingo::StagingSync)
+loader.push_dir("#{__dir__}/staging_sync/database", namespace: Scalingo::StagingSync)
+loader.push_dir("#{__dir__}/staging_sync/testing", namespace: Scalingo::StagingSync)
+loader.push_dir("#{__dir__}/staging_sync/integrations", namespace: Scalingo::StagingSync)
+loader.push_dir("#{__dir__}/staging_sync/support", namespace: Scalingo::StagingSync)
 loader.ignore("#{__dir__}/generators")
 loader.setup
 

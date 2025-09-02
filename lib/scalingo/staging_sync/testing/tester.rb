@@ -7,7 +7,7 @@ require_relative "system_tests"
 
 module Scalingo
   module StagingSync
-    class StagingSyncTester
+    class Tester
       include TestReporter
       include ConfigTests
       include EnvironmentTests
@@ -21,7 +21,7 @@ module Scalingo
       end
 
       def run_tests!
-        @logger.info "[StagingSyncTester] Starting demo database sync configuration tests..."
+        @logger.info "[Tester] Starting demo database sync configuration tests..."
         @slack_notifier.notify_step("🧪 Starting configuration tests", context: "[Tester]")
 
         print_test_header
@@ -39,7 +39,7 @@ module Scalingo
       end
 
       def run_all_tests
-        @logger.info "[StagingSyncTester] Running test suite..."
+        @logger.info "[Tester] Running test suite..."
         test_configuration_file
         test_security_guards
         test_environment_variables
@@ -53,10 +53,10 @@ module Scalingo
         result = all_tests_passed?
 
         if result
-          @logger.info "[StagingSyncTester] ✅ All tests passed successfully"
+          @logger.info "[Tester] ✅ All tests passed successfully"
           @slack_notifier.notify_step("✅ Configuration tests passed", context: "[Tester]")
         else
-          @logger.error "[StagingSyncTester] ❌ Tests failed - see summary for details"
+          @logger.error "[Tester] ❌ Tests failed - see summary for details"
           @slack_notifier.notify_warning("Configuration tests failed - check logs", context: "[Tester]")
         end
 
@@ -64,16 +64,16 @@ module Scalingo
       end
 
       def test_slack_integration
-        @logger.info "[StagingSyncTester] Testing Slack integration..."
+        @logger.info "[Tester] Testing Slack integration..."
         section_header("Slack Integration")
 
         if defined?(SlackNotificationService)
           pass "SlackNotificationService class is loaded"
-          @logger.info "[StagingSyncTester] SlackNotificationService module is available"
+          @logger.info "[Tester] SlackNotificationService module is available"
           test_slack_methods
         else
           warn "SlackNotifier not defined - notifications will be skipped"
-          @logger.warn "[StagingSyncTester] SlackNotifier not available - Slack notifications disabled"
+          @logger.warn "[Tester] SlackNotifier not available - Slack notifications disabled"
         end
       end
 
@@ -83,9 +83,9 @@ module Scalingo
 
         if missing_methods.empty?
           pass "All required Slack methods available"
-          @logger.info "[StagingSyncTester] All required Slack notification methods available"
+          @logger.info "[Tester] All required Slack notification methods available"
         else
-          @logger.error "[StagingSyncTester] Missing Slack methods: #{missing_methods.join(', ')}"
+          @logger.error "[Tester] Missing Slack methods: #{missing_methods.join(', ')}"
           raise "Missing Slack methods: #{missing_methods.join(', ')}"
         end
       end
