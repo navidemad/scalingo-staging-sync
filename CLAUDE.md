@@ -221,6 +221,7 @@ ScalingoStagingSync.configure do |config|
   ]
   config.parallel_connections = 4
   config.seeds_file_path = "db/demo_seeds.rb"               # Optional: seeds to run after sync
+  config.postgis = false                                    # Optional: default is false, set to true for PostGIS databases
 end
 ```
 
@@ -235,6 +236,7 @@ end
 - `seeds_file_path`: Path to seeds file to run after cloning (optional)
 - `logger`: Custom logger (defaults to Rails.logger)
 - `temp_dir`: Directory for temporary files (defaults to Rails.root.join("tmp"))
+- `postgis`: Whether to use PostGIS extension (default: false, set to true if using PostGIS)
 
 ### Required Environment Variables
 - `APP` - Target Scalingo app name (automatically set on Scalingo)

@@ -8,7 +8,6 @@ module ScalingoStagingSync
         log_postgresql_version(connection)
         log_database_size(connection)
         log_table_count(connection)
-        check_users_table(connection)
       end
 
       private
@@ -32,14 +31,6 @@ module ScalingoStagingSync
         )
         table_count = tables_result.first["count"]
         info "  Public tables: #{table_count}"
-      end
-
-      def check_users_table(connection)
-        users_result = connection.exec("SELECT COUNT(*) as count FROM users")
-        user_count = users_result.first["count"]
-        info "  Users in database: #{user_count.to_i.to_fs(:delimited)}"
-      rescue StandardError
-        # Users table doesn't exist
       end
     end
   end

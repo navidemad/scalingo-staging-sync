@@ -65,8 +65,8 @@ module ScalingoStagingSync
       end
 
       def log_progress(bytes_downloaded, total_size, chunk_size)
-        # Log every 10MB
-        return unless (bytes_downloaded % (10 * 1024 * 1024)) < chunk_size
+        # Log every 500MB
+        return unless (bytes_downloaded % (500 * 1024 * 1024)) < chunk_size
 
         progress = (bytes_downloaded.to_f / total_size * 100).round(2)
         log_context(

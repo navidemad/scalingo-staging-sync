@@ -16,7 +16,6 @@ module ScalingoStagingSync
       def initialize(logger: Rails.logger)
         @logger = logger
         @results = {}
-        @config_file = Rails.root.join("config/scalingo_staging_sync.yml")
         @slack_notifier = ScalingoStagingSync::Services::SlackNotificationService.new(logger: logger)
       end
 
@@ -40,7 +39,7 @@ module ScalingoStagingSync
 
       def run_all_tests
         @logger.info "[Tester] Running test suite..."
-        test_configuration_file
+        test_configuration
         test_security_guards
         test_environment_variables
         test_required_tools

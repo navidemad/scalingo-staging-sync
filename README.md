@@ -272,6 +272,10 @@ ScalingoStagingSync.configure do |config|
   
   # Optional: Run seeds after cloning
   config.seeds_file_path = "db/demo_seeds.rb"
+  
+  # Optional: Whether to use PostGIS extension (default: false)
+  # Set to true if your database uses PostGIS
+  config.postgis = false
 end
 ```
 

@@ -17,6 +17,7 @@ module ScalingoStagingSync
     config_accessor :logger, default: nil
     config_accessor :temp_dir, default: nil
     config_accessor :seeds_file_path, default: nil
+    config_accessor :postgis, default: false
 
     def logger
       @logger ||= Rails.logger

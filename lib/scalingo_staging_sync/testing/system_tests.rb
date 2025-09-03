@@ -84,7 +84,7 @@ module ScalingoStagingSync
       # Database info logging methods are provided by DatabaseInfoLogger module
 
       def test_temp_directory_permissions
-        temp_dir = Rails.root.join("tmp")
+        temp_dir = ScalingoStagingSync.configuration.temp_dir
         if File.writable?(temp_dir)
           pass "Temp directory writable: #{temp_dir}"
           @logger.info "[Tester] Temp directory is writable: #{temp_dir}"
@@ -95,13 +95,19 @@ module ScalingoStagingSync
       end
 
       def test_staging_seeds_file
-        seeds_file = Rails.root.join("db/seeds/staging.rb")
+        seeds_file = ScalingoStagingSync.configuration.seeds_file_path
+
+        if seeds_file.nil?
+          info "No seeds file configured"
+          return
+        end
+
         if File.exist?(seeds_file)
           pass "Staging seeds file exists"
           info "  Path: #{seeds_file}"
           info "  Size: #{(File.size(seeds_file) / 1024.0).round(2)} KB"
         else
-          warn "Staging seeds file not found: #{seeds_file}"
+          warn "Configured seeds file not found: #{seeds_file}"
         end
       end
     end

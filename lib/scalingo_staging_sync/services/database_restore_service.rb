@@ -13,9 +13,14 @@ module ScalingoStagingSync
       include Database::RestoreCommandBuilder
 
       def initialize(database_url, logger: Rails.logger)
-        # Store both versions: postgis:// for Rails, postgres:// for command-line tools
-        @database_url = database_url.sub(/^postgres/, "postgis") # For Rails (handles PostGIS types)
-        @pg_url = database_url.sub(/^postgis/, "postgres") # For psql, pg_restore, etc.
+        if ScalingoStagingSync.configuration.postgis
+          # Store both versions: postgis:// for Rails, postgres:// for command-line tools
+          @database_url = database_url.sub(/^postgres/, "postgis") # For Rails (handles PostGIS types)
+          @pg_url = database_url.sub(/^postgis/, "postgres") # For psql, pg_restore, etc.
+        else
+          @database_url = database_url
+          @pg_url = database_url
+        end
         @logger = logger
         @slack_notifier = ScalingoStagingSync::Services::SlackNotificationService.new(logger: logger)
       end

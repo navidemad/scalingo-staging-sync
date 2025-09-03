@@ -2,57 +2,77 @@
 
 module ScalingoStagingSync
   module Testing
-    # Module for configuration file testing
+    # Module for configuration testing
     module ConfigTests
-      def test_configuration_file
-        @logger.info "[Tester] Testing configuration file..."
-        section_header("Configuration File")
+      def test_configuration
+        @logger.info "[Tester] Testing configuration..."
+        section_header("Configuration")
 
-        if File.exist?(@config_file)
-          load_and_validate_config
-        else
-          @logger.error "[Tester] Config file not found: #{@config_file}"
-          @config = {}
-          raise "scalingo_staging_sync.yml not found at #{@config_file}"
-        end
+        @config = ScalingoStagingSync.configuration
+        validate_config_values
       rescue StandardError => e
-        @logger.error "[Tester] Failed to load config: #{e.message}"
-        @config = {}
-        raise "Error loading config: #{e.message}"
+        @logger.error "[Tester] Failed to validate configuration: #{e.message}"
+        raise "Error validating configuration: #{e.message}"
       end
 
       private
 
-      def load_and_validate_config
-        @config = YAML.load_file(@config_file)
-        pass "scalingo_staging_sync.yml found"
-        @logger.info "[Tester] Config file loaded successfully from #{@config_file}"
-        validate_config_keys
-      end
+      def validate_config_values
+        pass "Configuration loaded"
+        @logger.info "[Tester] Configuration loaded successfully"
 
-      def validate_config_keys
-        required_keys = {
-          "target_app" => "Target application name",
-          "clone_source_scalingo_app_name" => "Clone source Scalingo app name"
-        }
+        # Check required configuration
+        validate_required_config
 
-        required_keys.each do |key, description|
-          raise "Missing config: #{key}" unless @config[key].present?
-
-          info "  #{description}: #{@config[key]}"
-        end
-
+        # Check optional configuration
         log_optional_config
       end
 
+      def validate_required_config
+        # Clone source app name
+        raise "Missing config: clone_source_scalingo_app_name" unless @config.clone_source_scalingo_app_name.present?
+
+        info "  Clone source app: #{@config.clone_source_scalingo_app_name}"
+
+        # Target app (from ENV)
+        begin
+          target = @config.target_app
+          info "  Target app: #{target}"
+        rescue ArgumentError => e
+          @logger.warn "[Tester] Target app not available: #{e.message}"
+          warn "  Target app: Not set (ENV['APP'] required on Scalingo)"
+        end
+      end
+
       def log_optional_config
-        info "  Anonymization: ✅ Enabled"
-        info "  Slack notifications: ✅ Enabled"
+        log_slack_config
+        log_excluded_tables
+        log_other_settings
+      end
 
-        return unless @config.dig("database", "exclude_tables").present?
+      def log_slack_config
+        if @config.slack_enabled
+          info "  Slack notifications: ✅ Enabled"
+          info "    Channel: #{@config.slack_channel}" if @config.slack_channel.present?
+        else
+          info "  Slack notifications: ❌ Disabled"
+        end
+      end
 
-        info "  Excluded tables: #{@config.dig('database', 'exclude_tables').size} tables"
-        @config["database"]["exclude_tables"].each { |table| info "    - #{table}" }
+      def log_excluded_tables
+        return unless @config.exclude_tables.present?
+
+        info "  Excluded tables: #{@config.exclude_tables.size} tables"
+        @config.exclude_tables.each { |table| info "    - #{table}" }
+      end
+
+      def log_other_settings
+        info "  Parallel connections: #{@config.parallel_connections}"
+        info "  PostGIS enabled: #{@config.postgis}"
+
+        return unless @config.seeds_file_path.present?
+
+        info "  Seeds file: #{@config.seeds_file_path}"
       end
     end
   end
