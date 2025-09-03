@@ -122,7 +122,6 @@
     - [💡 Have an Idea?](#-have-an-idea)
   - [📝 Changelog](#-changelog)
   - [🗺️ Roadmap](#️-roadmap)
-    - [📅 Planned Features](#-planned-features)
   - [📄 License](#-license)
   - [📜 Code of Conduct](#-code-of-conduct)
   - [💎 Credits \& Dependencies](#-credits--dependencies)
@@ -733,15 +732,6 @@ We're here to help! No question is too small.
 [View Full Changelog](https://github.com/navidemad/scalingo-staging-sync/releases)
 
 ## 🗺️ Roadmap
-
-### 📅 Planned Features
-- [ ] 🖥️ Web UI for configuration management
-- [ ] ⚡ Incremental backup support for faster clones
-- [ ] 🎯 Custom anonymization functions
-- [ ] 🗃️ Multi-database support
-- [ ] 🌍 I18n support for multiple languages
-- [ ] 📊 Built-in analytics and monitoring
-
 See the [open issues](https://github.com/navidemad/scalingo-staging-sync/issues) for a full list of proposed features and vote on what you'd like to see next!
 
 ## 📄 License
