@@ -5,6 +5,7 @@
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/navidemad/scalingo-staging-sync/ci.yml)](https://github.com/navidemad/scalingo-staging-sync/actions/workflows/ci.yml)
 [![GitHub release](https://img.shields.io/github/v/release/navidemad/scalingo-staging-sync?color=blue&label=release)]()
 [![GitHub license](https://img.shields.io/github/license/navidemad/scalingo-staging-sync?color=green)]()
+
 [![GitHub issues](https://img.shields.io/github/issues/navidemad/scalingo-staging-sync?color=red)]()
 [![GitHub stars](https://img.shields.io/github/stars/navidemad/scalingo-staging-sync?color=yellow)]()
 [![GitHub forks](https://img.shields.io/github/forks/navidemad/scalingo-staging-sync?color=orange)]()
@@ -12,7 +13,7 @@
 
 Clone and anonymize Scalingo production databases for safe use in staging/demo environments
 
-**Requirements:** PostgreSQL 16.x databases
+**Requirements:** PostgreSQL, Rails
 
 ## Quick start
 
@@ -21,27 +22,15 @@ Add the gem to your Gemfile inside your staging environment:
 gem 'scalingo-staging-sync', group: 'staging'
 ```
 
-enable the gem with generate command
+enable the gem with generate command to generate the default configuration
 
 ```bash
 bundle exec rails generate scalingo_staging_sync:install
 ```
 
-The generate command will auto generate the default configuration
-
-### Usage
-
-```bash
-# Clone production database to current environment
-bundle exec rake scalingo_staging_sync:run
-
-# Test configuration and safety checks
-bundle exec rake scalingo_staging_sync:check
-```
-
 ## Scheduling with Cron
 
-For automated database cloning, create a `cron.json` file at the root of your project to schedule the clone task:
+Create a `cron.json` file at the root of your project to schedule the worflow:
 
 ```json
 {
@@ -54,60 +43,17 @@ For automated database cloning, create a `cron.json` file at the root of your pr
 }
 ```
 
-This example runs the database clone every Sunday at 7:00 AM. Adjust the cron expression and dyno size according to your needs:
+This example runs the database clone every Sunday at 7:00 AM UTC.
+Adjust the cron expression and dyno size according to your needs:
 
-- **Cron format**: `minute hour day-of-month month day-of-week`
+- **Cron format**: `minute hour day-of-month month day-of-week` Use crontab.guru to generate a cron expression
 - **Size**: Choose appropriate dyno size (S, M, L, XL, 2XL, etc.) based on your database size
-- **Common schedules**:
-  - `0 7 * * 0` - Every Sunday at 7:00 AM
-  - `0 2 * * 1` - Every Monday at 2:00 AM  
-  - `0 8 */3 * *` - Every 3 days at 8:00 AM
 
-Note: The cron job will only run in environments where the gem is installed (typically staging environments).
+Note: The cron job will only run in environments where Rails.env.staging? is true.
 
 ## Workflow
 
-The gem follows a comprehensive workflow to safely clone and anonymize production databases:
-
-```mermaid
-flowchart TD
-    A[Start: rake scalingo_database:clone] --> B{Safety Checks}
-    B -->|Pass| C[Initialize Services]
-    B -->|Fail| Z[❌ Abort with Error]
-    
-    C --> D[📢 Slack: Starting Clone]
-    D --> E[🔍 Find PostgreSQL Addon]
-    E --> F[📦 Request Backup from Scalingo]
-    
-    F --> G{Backup Ready?}
-    G -->|No| H[⏳ Wait & Poll Status]
-    H --> G
-    G -->|Yes| I[⬇️ Download Backup]
-    
-    I --> J[🗂️ Extract & Validate Files]
-    J --> K[📢 Slack: Starting Restore]
-    K --> L[🗃️ Drop Existing Database]
-    L --> M[🆕 Create Fresh Database]
-    
-    M --> N{pg_restore Available?}
-    N -->|Yes| O[🔄 Restore with pg_restore]
-    N -->|No| P[🔄 Restore with psql]
-    
-    O --> Q[📢 Slack: Starting Anonymization]
-    P --> Q
-    Q --> R[🔒 Anonymize Sensitive Data]
-    R --> S[🧹 Clean Temporary Files]
-    S --> T[📢 Slack: Clone Complete]
-    T --> U[✅ Success]
-
-    style A fill:#e1f5fe
-    style Z fill:#ffebee
-    style U fill:#e8f5e8
-    style D fill:#fff3e0
-    style K fill:#fff3e0
-    style Q fill:#fff3e0
-    style T fill:#fff3e0
-```
+The gem follows a comprehensive workflow to safely clone and anonymize production databases: [WORKFLOW.md](WORKFLOW.md)
 
 ### Key Components
 
