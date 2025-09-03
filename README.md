@@ -3,6 +3,12 @@
 [![Gem Version](https://img.shields.io/gem/v/scalingo-staging-sync)](https://rubygems.org/gems/scalingo-staging-sync)
 [![Gem Downloads](https://img.shields.io/gem/dt/scalingo-staging-sync)](https://www.ruby-toolbox.com/projects/scalingo-staging-sync)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/navidemad/scalingo-staging-sync/ci.yml)](https://github.com/navidemad/scalingo-staging-sync/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/navidemad/scalingo-staging-sync?color=blue&label=release)]()
+[![GitHub license](https://img.shields.io/github/license/navidemad/scalingo-staging-sync?color=green)]()
+[![GitHub issues](https://img.shields.io/github/issues/navidemad/scalingo-staging-sync?color=red)]()
+[![GitHub stars](https://img.shields.io/github/stars/navidemad/scalingo-staging-sync?color=yellow)]()
+[![GitHub forks](https://img.shields.io/github/forks/navidemad/scalingo-staging-sync?color=orange)]()
+[![GitHub watchers](https://img.shields.io/github/watchers/navidemad/scalingo-staging-sync?color=blue)]()
 
 Clone and anonymize Scalingo production databases for safe use in staging/demo environments
 
@@ -21,35 +27,16 @@ enable the gem with generate command
 bundle exec rails generate scalingo_staging_sync:install
 ```
 
-The generate command will auto generate the default configuration and may ask to include in the test environment as well. See below for custom configuration.
-
-## Configuration
-
-Configure the gem in your Rails initializer:
-
-```ruby
-# config/initializers/scalingo_staging_sync.rb
-ScalingoStagingSync.configure do |config|
-  config.clone_source_scalingo_app_name = "dummy-demo" # Scalingo app to clone from
-  config.target_app = "dummy-staging" # Or use ENV["APP"] automatically
-  config.slack_channel = "#deployments"
-  config.slack_enabled = true
-  config.exclude_tables = [
-    "temp_data",
-    "audit_logs",
-  ]
-  config.parallel_connections = 4
-end
-```
+The generate command will auto generate the default configuration
 
 ### Usage
 
 ```bash
 # Clone production database to current environment
-bundle exec rake scalingo_staging_sync:clone
+bundle exec rake scalingo_staging_sync:run
 
 # Test configuration and safety checks
-bundle exec rake scalingo_staging_sync:test_clone
+bundle exec rake scalingo_staging_sync:check
 ```
 
 ## Scheduling with Cron
@@ -60,7 +47,7 @@ For automated database cloning, create a `cron.json` file at the root of your pr
 {
   "jobs": [
     {
-      "command": "0 7 * * 0 bundle exec rake scalingo_staging_sync:clone",
+      "command": "0 7 * * 0 bundle exec rake scalingo_staging_sync:run",
       "size": "2XL"
     }
   ]

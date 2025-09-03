@@ -32,7 +32,7 @@ module ScalingoStagingSync
       def execute!
         validate_environment!
 
-        @logger.tagged("DEMO_SYNC") do
+        @logger.tagged("SCALINGO_STAGING_SYNC") do
           log_sync_start
           notify_start
 
