@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="https://via.placeholder.com/880x200/1a1b26/6366f1?text=🔄+Scalingo+Staging+Sync" alt="Scalingo Staging Sync Banner" width="100%">
-
 # 🔄 scalingo-staging-sync
 
 <p align="center">
@@ -72,30 +70,68 @@
 <details open>
 <summary>Click to expand</summary>
 
-- [🤔 Why scalingo-staging-sync?](#-why-scalingo-staging-sync)
-- [💭 Philosophy & Story](#-philosophy--story)
-- [✨ Features](#-features)
-- [🛠️ Technology Stack](#️-technology-stack)
-- [🚀 Quick Start](#-quick-start---2-minutes-to-safety)
-- [🎬 Live Demo](#-live-demo)
-- [⚙️ Configuration](#️-configuration)
-- [🛡️ Safety Features](#️-safety-features)
-- [⏰ Scheduling Automated Clones](#-scheduling-automated-clones)
-- [🔄 How It Works](#-how-it-works)
-- [💼 Real-World Examples](#-real-world-examples)
-- [❓ Frequently Asked Questions](#-frequently-asked-questions)
-- [🔄 Alternative Tools](#-alternative-tools)
-- [🐛 Troubleshooting](#-troubleshooting)
-- [📊 Performance & Benchmarks](#-performance--benchmarks)
-- [🤝 Contributing](#-contributing)
-- [💬 Getting Help](#-getting-help)
-- [📝 Recent Changes](#-recent-changes)
-- [🗺️ Roadmap](#️-roadmap)
-- [📄 License](#-license)
-- [📜 Code of Conduct](#-code-of-conduct)
-- [🌟 Star History](#-star-history)
-- [💎 Credits & Dependencies](#-credits--dependencies)
-- [🙏 Acknowledgments](#-acknowledgments)
+- [🔄 scalingo-staging-sync](#-scalingo-staging-sync)
+  - [📋 Table of Contents](#-table-of-contents)
+  - [🎯 Quick Actions](#-quick-actions)
+  - [🤔 Why scalingo-staging-sync?](#-why-scalingo-staging-sync)
+  - [💭 Philosophy \& Story](#-philosophy--story)
+    - [📖 Why We Built This](#-why-we-built-this)
+  - [✨ Features](#-features)
+    - [🔒 Security First](#-security-first)
+    - [⚡ High Performance](#-high-performance)
+    - [🎯 Developer Experience](#-developer-experience)
+  - [🛠️ Technology Stack](#️-technology-stack)
+  - [🚀 Quick Start - 2 Minutes to Safety](#-quick-start---2-minutes-to-safety)
+  - [⚙️ Configuration](#️-configuration)
+    - [📝 Basic Configuration](#-basic-configuration)
+      - [Complex Join-Based Anonymization](#complex-join-based-anonymization)
+    - [Multi-Environment Setup](#multi-environment-setup)
+    - [Industry-Specific Templates](#industry-specific-templates)
+  - [🛡️ Safety Features](#️-safety-features)
+  - [⏰ Scheduling Automated Clones](#-scheduling-automated-clones)
+  - [🔄 How It Works](#-how-it-works)
+    - [1️⃣ Safety Checks](#1️⃣-safety-checks)
+    - [2️⃣ Backup Creation](#2️⃣-backup-creation)
+    - [3️⃣ Data Transfer](#3️⃣-data-transfer)
+    - [4️⃣ Database Restoration](#4️⃣-database-restoration)
+    - [5️⃣ Data Anonymization](#5️⃣-data-anonymization)
+    - [6️⃣ Post-Processing](#6️⃣-post-processing)
+    - [🏗️ Architecture Components](#️-architecture-components)
+    - [📁 Project Structure](#-project-structure)
+  - [💼 Real-World Examples](#-real-world-examples)
+    - [🛍️ E-commerce Platform](#️-e-commerce-platform)
+    - [☁️ SaaS Application](#️-saas-application)
+  - [❓ Frequently Asked Questions](#-frequently-asked-questions)
+    - [Getting Started](#getting-started)
+    - [Configuration](#configuration)
+    - [Troubleshooting](#troubleshooting)
+  - [🔄 Alternative Tools](#-alternative-tools)
+  - [🐛 Troubleshooting](#-troubleshooting)
+    - [❌ Common Issues](#-common-issues)
+    - [✅ Testing Your Configuration](#-testing-your-configuration)
+  - [📊 Performance \& Benchmarks](#-performance--benchmarks)
+    - [⚡ Speed Comparison](#-speed-comparison)
+    - [📈 Performance Metrics](#-performance-metrics)
+    - [🚀 Optimization Tips](#-optimization-tips)
+  - [🤝 Contributing](#-contributing)
+    - [🔧 Development Setup](#-development-setup)
+    - [📤 Submitting Changes](#-submitting-changes)
+    - [👥 Contributors](#-contributors)
+  - [💬 Getting Help](#-getting-help)
+    - [🚨 Found a Bug?](#-found-a-bug)
+    - [💡 Have an Idea?](#-have-an-idea)
+  - [📝 Changelog](#-changelog)
+  - [🗺️ Roadmap](#️-roadmap)
+    - [📅 Planned Features](#-planned-features)
+  - [📄 License](#-license)
+  - [📜 Code of Conduct](#-code-of-conduct)
+  - [💎 Credits \& Dependencies](#-credits--dependencies)
+    - [Core Dependencies](#core-dependencies)
+    - [Development Tools](#development-tools)
+  - [🙏 Acknowledgments](#-acknowledgments)
+    - [🏆 Special Thanks](#-special-thanks)
+    - [⭐ If you find this gem useful, please consider giving it a star on GitHub!](#-if-you-find-this-gem-useful-please-consider-giving-it-a-star-on-github)
+    - [📢 Share This Project](#-share-this-project)
 
 </details>
 
@@ -213,21 +249,6 @@ bundle exec rake scalingo_staging_sync:run
 ```
 
 That's it! Your staging database now contains safe, anonymized production data.
-
-## 🎬 Live Demo
-
-<div align="center">
-  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="rainbow separator">
-  
-  <!-- Terminal Recording -->
-  <a href="https://asciinema.org/a/demo">
-    <img src="https://via.placeholder.com/700x400/1a1b26/6366f1?text=🎬+Click+for+Terminal+Demo" alt="Demo" width="70%"/>
-  </a>
-  
-  <p><em>⏱️ Watch a 2-minute demo of the complete sync process</em></p>
-  
-  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="rainbow separator">
-</div>
 
 ## ⚙️ Configuration
 
@@ -708,34 +729,10 @@ We're here to help! No question is too small.
 ### 💡 Have an Idea?
 [Request a feature](https://github.com/navidemad/scalingo-staging-sync/issues/new?template=feature_request.md) or start a [discussion](https://github.com/navidemad/scalingo-staging-sync/discussions)
 
-### 🤔 Need Help?
-- **Quick questions**: [GitHub Discussions](https://github.com/navidemad/scalingo-staging-sync/discussions)
-- **Documentation**: Check our [Wiki](https://github.com/navidemad/scalingo-staging-sync/wiki) (coming soon)
-- **Direct support**: [navidemad@gmail.com](mailto:navidemad@gmail.com)
-
-### 👋 New to Open Source?
-This project welcomes first-time contributors! Look for issues tagged with:
-- `good first issue` - Simple tasks to get started
-- `help wanted` - Areas where we need assistance
-- `documentation` - Help improve our docs
-
-Don't hesitate to ask for guidance - we were all beginners once!
-
-## 📝 Recent Changes
-
-### [v1.2.0](https://github.com/navidemad/scalingo-staging-sync/releases/tag/v1.2.0) - Latest Release
-- ✨ Added parallel anonymization support
-- 🐛 Fixed foreign key constraint issues  
-- 📚 Improved documentation with examples
-- ⚡ 3x performance improvement for large databases
-
-[View Full Changelog →](https://github.com/navidemad/scalingo-staging-sync/releases)
+## 📝 Changelog
+[View Full Changelog](https://github.com/navidemad/scalingo-staging-sync/releases)
 
 ## 🗺️ Roadmap
-
-### 🚀 In Progress
-- [ ] 🔧 Support for MySQL/MariaDB databases
-- [ ] 📋 Built-in GDPR compliance templates
 
 ### 📅 Planned Features
 - [ ] 🖥️ Web UI for configuration management
@@ -754,14 +751,6 @@ The gem is available as open source under the terms of the [MIT License](LICENSE
 ## 📜 Code of Conduct
 
 Everyone interacting in this project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](CODE_OF_CONDUCT.md).
-
-## 🌟 Star History
-
-<div align="center">
-  <a href="https://star-history.com/#navidemad/scalingo-staging-sync&Date">
-    <img src="https://api.star-history.com/svg?repos=navidemad/scalingo-staging-sync&type=Date" alt="Star History Chart">
-  </a>
-</div>
 
 ## 💎 Credits & Dependencies
 
