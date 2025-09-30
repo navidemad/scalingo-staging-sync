@@ -45,8 +45,8 @@
   </a>
   <br>
   <!-- Requirements -->
-  <img src="https://img.shields.io/badge/Ruby-3.1%2B-red?style=flat-square&logo=ruby" alt="Ruby Version"/>
-  <img src="https://img.shields.io/badge/Rails-6.1%2B-red?style=flat-square&logo=ruby-on-rails" alt="Rails Version"/>
+  <img src="https://img.shields.io/badge/Ruby-3.4%2B-red?style=flat-square&logo=ruby" alt="Ruby Version"/>
+  <img src="https://img.shields.io/badge/Rails-8.0.3%2B-red?style=flat-square&logo=ruby-on-rails" alt="Rails Version"/>
   <img src="https://img.shields.io/badge/PostgreSQL-16.x-blue?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
   <img src="https://img.shields.io/badge/Scalingo-Platform-4e54c8?style=flat-square" alt="Scalingo"/>
 </p>

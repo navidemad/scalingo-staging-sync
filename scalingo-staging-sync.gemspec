@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = "Sync and anonymize Scalingo production databases for safe use in staging/demo environments"
   spec.homepage = "https://github.com/navidemad/scalingo-staging-sync"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.1"
+  spec.required_ruby_version = ">= 3.4"
 
   spec.metadata = {
     "bug_tracker_uri" => "https://github.com/navidemad/scalingo-staging-sync/issues",

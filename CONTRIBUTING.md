@@ -41,7 +41,7 @@ Enhancement suggestions are welcome! Please provide:
 
 ### Prerequisites
 
-- Ruby 3.1 or higher
+- Ruby 3.4 or higher
 - PostgreSQL 16.x
 - Bundler
 

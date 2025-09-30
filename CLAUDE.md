@@ -112,13 +112,13 @@ lib/
 ### Code Quality Tools
 - **RuboCop**: Configured with multiple plugins (minitest, packaging, performance, rake)
 - **Overcommit**: Git hooks for bundle check, RuboCop, FixMe detection, and YAML syntax
-- **GitHub Actions**: CI pipeline testing Ruby 3.1-3.4 and head versions
+- **GitHub Actions**: CI pipeline testing Ruby 3.4 and head versions
 
 ## Development Notes
 
 ### Ruby Version Support
-- Minimum Ruby version: 3.1
-- CI tests on: 3.1, 3.2, 3.3, 3.4, head
+- Minimum Ruby version: 3.4
+- CI tests on: 3.4, head
 
 ### Runtime Dependencies
 - `pg` - PostgreSQL adapter for database operations
