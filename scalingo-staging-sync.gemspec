@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Runtime dependencies
+  spec.add_dependency "ostruct"
   spec.add_dependency "pg"
   spec.add_dependency "rails"
   spec.add_dependency "scalingo"

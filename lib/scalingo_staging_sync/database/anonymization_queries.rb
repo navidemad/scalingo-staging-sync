@@ -65,6 +65,60 @@ module ScalingoStagingSync
           SET card_last4 = '0000'
         SQL
       end
+
+      # Verification Queries
+      # These queries help verify that anonymization succeeded
+
+      def users_verification_query
+        <<~SQL.squish
+          SELECT
+            COUNT(*) FILTER (WHERE email ~ '@(gmail|yahoo|hotmail|outlook|icloud).com$') as production_emails,
+            COUNT(*) FILTER (WHERE first_name != 'Demo' AND first_name IS NOT NULL) as real_names,
+            COUNT(*) FILTER (WHERE credit_card_last_4 != '0000' AND credit_card_last_4 IS NOT NULL) as real_credit_cards,
+            COUNT(*) FILTER (WHERE iban_last4 != '0000' AND iban_last4 IS NOT NULL) as real_ibans,
+            COUNT(*) FILTER (WHERE google_token IS NOT NULL OR facebook_token IS NOT NULL
+                             OR apple_id IS NOT NULL OR stripe_customer_id IS NOT NULL) as remaining_tokens,
+            COUNT(*) FILTER (WHERE birth_date IS NOT NULL OR birth_place IS NOT NULL) as birth_dates,
+            COUNT(*) as total_rows
+          FROM users
+        SQL
+      end
+
+      def phone_numbers_verification_query
+        <<~SQL.squish
+          SELECT
+            COUNT(*) FILTER (WHERE number ~ '^\\+?1[2-9]\\d{9}$'
+                             OR number ~ '^\\+?33[1-9]\\d{8}$'
+                             OR number ~ '^\\+?44[1-9]\\d{9}$'
+                             OR number ~ '^[789]\\d{9}$') as real_phones,
+            COUNT(*) FILTER (WHERE number !~ '^060[0-9]{7}$' AND number IS NOT NULL) as non_anonymized_format,
+            COUNT(*) as total_rows
+          FROM phone_numbers
+        SQL
+      end
+
+      def payment_methods_verification_query
+        <<~SQL.squish
+          SELECT
+            COUNT(*) FILTER (WHERE card_last4 != '0000' AND card_last4 IS NOT NULL) as non_anonymized_cards,
+            COUNT(*) as total_rows
+          FROM payment_methods
+        SQL
+      end
+
+      # Generic verification query that can be customized
+      def verify_no_real_pii(table, pii_columns)
+        column_checks = pii_columns.map do |col|
+          "COUNT(*) FILTER (WHERE #{col} IS NOT NULL) as #{col}_count"
+        end.join(", ")
+
+        <<~SQL.squish
+          SELECT
+            #{column_checks},
+            COUNT(*) as total_rows
+          FROM #{table}
+        SQL
+      end
     end
   end
 end

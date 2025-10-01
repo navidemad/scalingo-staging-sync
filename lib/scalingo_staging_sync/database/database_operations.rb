@@ -20,9 +20,11 @@ module ScalingoStagingSync
       def drop_database
         @logger.info "[DatabaseRestoreService] Dropping existing database using Rails db:drop..."
 
-        drop_result = system(
-          "DATABASE_URL=\"#{@database_url}\" DISABLE_DATABASE_ENVIRONMENT_CHECK=\"1\" bin/rails db:drop 2>&1"
-        )
+        env = {
+          "DATABASE_URL" => @database_url,
+          "DISABLE_DATABASE_ENVIRONMENT_CHECK" => "1"
+        }
+        drop_result = system(env, "bin/rails", "db:drop", err: %i[child out])
 
         if drop_result
           @logger.info "[DatabaseRestoreService] Database dropped successfully"
@@ -33,7 +35,9 @@ module ScalingoStagingSync
 
       def create_database
         @logger.info "[DatabaseRestoreService] Creating fresh database using Rails db:create..."
-        create_result = system("DATABASE_URL=\"#{@database_url}\" bin/rails db:create")
+
+        env = { "DATABASE_URL" => @database_url }
+        create_result = system(env, "bin/rails", "db:create")
 
         unless create_result
           @logger.error "[DatabaseRestoreService] Failed to create database with db:create"
@@ -48,7 +52,8 @@ module ScalingoStagingSync
         @logger.info "[DatabaseRestoreService] Running database migrations..."
         @slack_notifier.restore_step("🔄 Exécution des migrations...")
 
-        result = system("DATABASE_URL=\"#{@database_url}\" bin/rails db:migrate")
+        env = { "DATABASE_URL" => @database_url }
+        result = system(env, "bin/rails", "db:migrate")
 
         if result
           @logger.info "[DatabaseRestoreService] ✓ Migrations completed successfully"
@@ -70,7 +75,7 @@ module ScalingoStagingSync
           ORDER BY extname;
         SQL
 
-        output, _error, status = Open3.capture3("psql \"#{@pg_url}\" -t -c \"#{extensions_query}\" ")
+        output, _error, status = Open3.capture3("psql", @pg_url, "-t", "-c", extensions_query)
 
         return log_extension_query_failure unless status.success?
 

@@ -79,7 +79,8 @@ module ScalingoStagingSync
       end
 
       def pg_restore_available?
-        available = system("which pg_restore", out: File::NULL, err: File::NULL)
+        _stdout, _stderr, status = Open3.capture3("which", "pg_restore")
+        available = status.success?
         @logger.debug "[DatabaseRestoreService] pg_restore availability: #{available}"
         available
       end
@@ -98,10 +99,11 @@ module ScalingoStagingSync
 
       def execute_pg_restore(backup_file, toc_file)
         restore_cmd = build_pg_restore_command(backup_file, toc_file)
+        env = pg_restore_env
         @logger.info "[DatabaseRestoreService] Executing pg_restore command..."
-        @logger.debug "[DatabaseRestoreService] Command: #{restore_cmd}"
+        @logger.debug "[DatabaseRestoreService] Command: #{restore_cmd.join(' ')}"
 
-        output, error, status = Open3.capture3(restore_cmd)
+        output, error, status = Open3.capture3(env, *restore_cmd)
         @logger.debug "[DatabaseRestoreService] pg_restore output lines: #{output.lines.size}"
 
         return if status.success?

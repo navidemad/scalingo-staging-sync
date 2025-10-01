@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "open3"
 require_relative "tools_configuration"
 require_relative "database_info_logger"
 
@@ -46,8 +47,12 @@ module ScalingoStagingSync
       # Tools configuration is provided by ToolsConfiguration module
 
       def test_tool_availability(name, config)
-        if system(config[:command], out: File::NULL, err: File::NULL)
-          version = `#{config[:version_command]} 2>/dev/null`.strip.split("\n").first
+        # Parse the command from 'which toolname' format
+        tool_name = config[:command].sub(/^which\s+/, "")
+        _stdout, _stderr, status = Open3.capture3("which", tool_name)
+
+        if status.success?
+          version = get_tool_version(config[:version_command])
           pass "#{name}: Available (#{version})"
           @logger.info "[Tester] Tool available: #{name} - #{version}"
         elsif config[:required]
@@ -57,6 +62,24 @@ module ScalingoStagingSync
           warn "#{name}: Not found (optional)"
           @logger.warn "[Tester] Optional tool missing: #{name}"
         end
+      end
+
+      def get_tool_version(version_command)
+        # Parse version command and execute safely
+        cmd_parts = if version_command.include?("|")
+                      # Handle commands like "tar --version | head -1"
+                      # For simplicity, just run the first part and take first line
+                      parts = version_command.split("|").map(&:strip)
+                      parts[0].split
+                    else
+                      # Handle simple commands like "scalingo version"
+                      version_command.split
+                    end
+
+        stdout, _stderr, status = Open3.capture3(*cmd_parts)
+        return stdout.strip.split("\n").first if status.success?
+
+        "unknown"
       end
 
       def test_database_connection(database_url)

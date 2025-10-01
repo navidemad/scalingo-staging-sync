@@ -187,10 +187,12 @@ We built scalingo-staging-sync because we needed a better way. A way that's:
 <td width="33%">
 
 ### 🔒 Security First
-- Production environment protection
+- Multi-factor production protection
+- Interactive confirmation mode
 - Automatic PII detection
 - GDPR compliant anonymization
-- Safe rollback on errors
+- Transaction-wrapped with rollback
+- Dry-run mode for safety
 
 </td>
 <td width="33%">
@@ -258,59 +260,231 @@ After running the generator, configure your initializer:
 ```ruby
 # config/initializers/scalingo_staging_sync.rb
 ScalingoStagingSync.configure do |config|
-  # Required: Source app to clone from
+  # ===== REQUIRED CONFIGURATION =====
+
+  # Source app to clone from
   config.clone_source_scalingo_app_name = "my-app-production"
-  
-  # Optional: Customize anonymization
+
+  # ===== SECURITY SETTINGS =====
+
+  # Production protection patterns (default: [/prod/i, /production/i])
+  config.production_hostname_patterns = [/prod/i, /production/i]
+  config.production_app_name_patterns = [/prod/i, /production/i]
+
+  # Interactive confirmation before running (default: false)
+  config.require_confirmation = false
+
+  # Dry-run mode - logs operations without executing (default: false)
+  config.dry_run = false
+
+  # ===== ANONYMIZATION CONFIGURATION =====
+
+  # Configure tables to anonymize with built-in or custom strategies
+  config.anonymization_tables = [
+    { table: "users", strategy: :user_anonymization, translation: "utilisateurs" },
+    { table: "phone_numbers", strategy: :phone_anonymization, translation: "téléphones" },
+    { table: "payment_methods", strategy: :payment_anonymization, translation: "moyens de paiement" },
+    { table: "addresses", strategy: :address_anonymization },
+    { table: "emails", strategy: :email_anonymization }
+    # Custom SQL query example:
+    # { table: "custom_table", query: "UPDATE custom_table SET field = NULL WHERE condition" }
+  ]
+
+  # Transaction and error handling
+  config.anonymization_rollback_on_error = true  # Rollback on failure (default: true)
+  config.anonymization_retry_attempts = 3        # Retry attempts (default: 3)
+  config.anonymization_retry_delay = 1.0         # Delay between retries in seconds (default: 1.0)
+
+  # Anonymization verification and audit
+  config.verify_anonymization = true                    # Verify anonymization succeeded (default: true)
+  config.fail_on_verification_error = true              # Fail if verification fails (default: true)
+  config.anonymization_audit_file = "tmp/anonymization_audit.json"  # Save audit report (optional)
+
+  # PII detection scanner
+  config.run_pii_scan = true                            # Scan for unanonymized PII (default: true)
+  config.pii_detection_patterns = {                     # Custom PII patterns (optional, uses defaults if nil)
+    identity: /\b(ssn|social_security|tax_id)\b/i,
+    contact: /\b(email|phone|address)\b/i,
+    financial: /\b(credit_card|iban|account_number)\b/i
+  }
+
+  # ===== PERFORMANCE SETTINGS =====
+
+  # Parallel processing connections (default: 3)
+  config.parallel_connections = 4
+
+  # Tables to exclude from cloning (default: [])
   config.exclude_tables = ["sessions", "audit_logs", "temporary_data"]
-  config.parallel_connections = 4  # Speed up anonymization
-  
-  # Optional: Slack notifications
+
+  # ===== SLACK NOTIFICATIONS =====
+
   config.slack_webhook_url = ENV["SLACK_WEBHOOK_URL"]
   config.slack_channel = "#deployments"
   config.slack_enabled = true
-  
-  # Optional: Run seeds after cloning
+
+  # ===== OTHER SETTINGS =====
+
+  # Run seeds after cloning (optional)
   config.seeds_file_path = "db/demo_seeds.rb"
-  
-  # Optional: Whether to use PostGIS extension (default: false)
-  # Set to true if your database uses PostGIS
+
+  # PostGIS extension support (default: false)
   config.postgis = false
 end
 ```
 
 <details>
-<summary>🔧 <strong>Advanced Anonymization</strong></summary>
+<summary>🔧 <strong>Advanced Anonymization Strategies</strong></summary>
 
-The gem automatically anonymizes common sensitive fields. You can customize this behavior:
+## Built-in Anonymization Strategies
+
+The gem provides 5 built-in strategies for common data types:
+
+### 1. User Anonymization (`:user_anonymization`)
+Anonymizes user identity, address, and authentication data:
+- Email addresses (SHA256 hashed)
+- Names (replaced with "Demo User" + ID)
+- Credit card and IBAN numbers
+- Social auth tokens (Stripe, Google, Facebook, Apple)
+- Birth dates and addresses
+
+### 2. Phone Anonymization (`:phone_anonymization`)
+Generates consistent fake phone numbers based on user/record ID:
+- Format: `060` + 7-digit padded ID
+- Example: `0600000123` for user ID 123
+
+### 3. Payment Anonymization (`:payment_anonymization`)
+Anonymizes payment method details:
+- Card last 4 digits set to `0000`
+
+### 4. Email Anonymization (`:email_anonymization`)
+Simple email-only anonymization:
+- Replaces with SHA256 hash + `@demo.example.com`
+
+### 5. Address Anonymization (`:address_anonymization`)
+Replaces address fields with generic values:
+- Street: `123 Demo Street`
+- City: `Demo City`
+- Postal code: `00000`
+
+## Custom Anonymization Strategies
+
+You can register your own strategies for reusable anonymization patterns:
 
 ```ruby
-# config/initializers/scalingo_staging_sync.rb
+# In config/initializers/scalingo_staging_sync.rb or before configuration
+
+# Register a custom strategy
+ScalingoStagingSync::Database::AnonymizationStrategies.register_strategy(:hipaa_patient) do |table, condition|
+  query = <<~SQL.squish
+    UPDATE #{table}
+    SET
+      patient_name = 'Patient ' || id,
+      ssn = 'XXX-XX-XXXX',
+      medical_record_number = 'MRN' || LPAD(id::text, 8, '0'),
+      date_of_birth = DATE '1990-01-01',
+      diagnosis = 'REDACTED',
+      insurance_number = NULL
+  SQL
+
+  query += " WHERE #{condition}" if condition
+  query
+end
+
+# Use the custom strategy in configuration
 ScalingoStagingSync.configure do |config|
-  # Add custom anonymization rules
-  config.anonymization_rules = {
-    "users" => {
-      "email" => "CONCAT('user', id, '@example.com')",
-      "phone" => "'555-0100'",
-      "ssn" => "NULL"
-    },
-    "credit_cards" => {
-      "number" => "'4111111111111111'",
-      "cvv" => "'123'"
-    }
-  }
+  config.anonymization_tables = [
+    { table: "patients", strategy: :hipaa_patient },
+    { table: "medical_records", strategy: :hipaa_patient }
+  ]
 end
 ```
 
-#### Complex Join-Based Anonymization
+## Custom SQL Queries
+
+For one-off anonymization needs, use inline SQL queries:
+
 ```ruby
-config.anonymization_rules = {
-  "users" => {
-    "email" => "CONCAT('user', id, '@', accounts.slug, '.demo')",
-    "full_name" => "CONCAT('Demo User ', id)"
+config.anonymization_tables = [
+  # Simple update
+  {
+    table: "api_keys",
+    query: "UPDATE api_keys SET key_hash = NULL, secret = NULL"
+  },
+
+  # Conditional anonymization
+  {
+    table: "orders",
+    query: "UPDATE orders SET customer_notes = 'REDACTED'",
+    condition: "created_at < NOW() - INTERVAL '1 year'"
+  },
+
+  # Complex transformation
+  {
+    table: "transactions",
+    query: <<~SQL.squish
+      UPDATE transactions
+      SET
+        amount = ROUND(RANDOM() * 1000, 2),
+        account_id = NULL,
+        reference_number = 'REF' || id
+    SQL
   }
+]
+```
+
+## Conditional Anonymization
+
+Use the `:condition` key to anonymize only specific rows:
+
+```ruby
+config.anonymization_tables = [
+  {
+    table: "users",
+    strategy: :user_anonymization,
+    condition: "anonymized_at IS NULL"  # Only anonymize once
+  },
+  {
+    table: "comments",
+    strategy: :user_anonymization,
+    condition: "created_at < NOW() - INTERVAL '90 days'"  # Only old comments
+  }
+]
+```
+
+## Anonymization with Verification
+
+The gem automatically verifies anonymization succeeded:
+
+```ruby
+config.verify_anonymization = true         # Enable verification (default: true)
+config.fail_on_verification_error = true   # Stop on verification failure (default: true)
+
+# Custom PII patterns for verification
+config.pii_detection_patterns = {
+  identity: /\b(ssn|passport|driver_license)\b/i,
+  contact: /\b(email|phone|address)\b/i,
+  financial: /\b(credit_card|iban|routing)\b/i,
+  medical: /\b(diagnosis|prescription|medical_record)\b/i
 }
 ```
+
+## Audit Trail
+
+Generate detailed audit reports of anonymization operations:
+
+```ruby
+config.anonymization_audit_file = "tmp/anonymization_audit.json"
+
+# Generates two files:
+# - tmp/anonymization_audit.json (machine-readable JSON)
+# - tmp/anonymization_audit.txt (human-readable report)
+```
+
+The audit report includes:
+- Tables anonymized and row counts
+- Verification results for each table
+- PII scan results before and after
+- Timestamp and duration of operations
 
 </details>
 
@@ -356,16 +530,155 @@ config.anonymization_rules = {
 
 ## 🛡️ Safety Features
 
-This gem includes multiple safety mechanisms to protect your production data:
+This gem includes comprehensive safety mechanisms to protect your production data:
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| 🚫 **Production Guard** | Prevents running in production environment | ✅ Enabled |
-| 🔍 **App Validation** | Verifies source and target app names | ✅ Enabled |
-| 🔄 **Auto Rollback** | Restores database on any failure | ✅ Enabled |
-| 📝 **Audit Trail** | Logs all operations for debugging | ✅ Enabled |
-| 🔒 **Data Anonymization** | Automatic PII detection and masking | ✅ Enabled |
-| 📊 **Smart Filtering** | Excludes unnecessary tables | ✅ Configurable |
+| 🚫 **Multi-Factor Production Guard** | Checks Rails.env, APP name, and database hostname patterns | ✅ Enabled |
+| 🔐 **Interactive Confirmation** | Requires typing target app name before proceeding | ⚙️ Configurable |
+| 🔍 **Dry-Run Mode** | Simulates operations without executing changes | ⚙️ Configurable |
+| 🔒 **Command Injection Protection** | Sanitizes all SQL identifiers and parameters | ✅ Enabled |
+| 🔄 **Transaction Rollback** | Wraps anonymization in transactions with automatic rollback | ✅ Enabled |
+| ♻️ **Retry Logic** | Retries failed operations with exponential backoff | ✅ Enabled (3 attempts) |
+| ✓ **Anonymization Verification** | Verifies PII was successfully anonymized | ✅ Enabled |
+| 🔍 **PII Scanner** | Detects unanonymized PII columns across all tables | ✅ Enabled |
+| 📊 **Audit Trail** | Generates detailed JSON/text reports of all operations | ⚙️ Configurable |
+| 🎯 **Column Validation** | Pre-checks all required columns exist before anonymization | ✅ Enabled |
+
+### Production Protection Details
+
+The gem uses **three layers of protection** to prevent accidental production usage:
+
+1. **Rails Environment Check**: Blocks if `Rails.env.production?` returns true
+2. **APP Name Pattern Check**: Blocks if `ENV['APP']` matches production patterns (default: `/prod/i`, `/production/i`)
+3. **Database Hostname Check**: Blocks if database URL hostname matches production patterns
+
+You can customize these patterns in your configuration:
+
+```ruby
+config.production_hostname_patterns = [/prod/i, /production/i, /eu-west-1\.rds\.amazonaws\.com/]
+config.production_app_name_patterns = [/prod/i, /production/i, /-main$/]
+```
+
+### Interactive Confirmation Mode
+
+For extra safety in sensitive environments, enable interactive confirmation:
+
+```ruby
+config.require_confirmation = true
+```
+
+This will prompt the operator to type the exact target app name before proceeding:
+
+```
+[CONFIRMATION REQUIRED] Type 'my-staging-app' to continue: _
+```
+
+**Note**: Interactive confirmation is automatically skipped in CI environments (when `CI=true`).
+
+### Dry-Run Mode
+
+Test your configuration without making any changes:
+
+```ruby
+config.dry_run = true
+```
+
+Or via environment variable:
+
+```bash
+DRY_RUN=true bundle exec rake scalingo_staging_sync:run
+```
+
+In dry-run mode:
+- All operations are logged but not executed
+- No database changes are made
+- Configuration is validated
+- Perfect for testing new anonymization strategies
+
+## 📖 Configuration Reference
+
+### All Configuration Options
+
+Here's a complete reference of all available configuration options:
+
+| Category | Option | Type | Default | Description |
+|----------|--------|------|---------|-------------|
+| **Required** |
+| | `clone_source_scalingo_app_name` | String | `"your-production-app"` | Scalingo app name to clone from |
+| **Security** |
+| | `production_hostname_patterns` | Array\<Regex\> | `[/prod/i, /production/i]` | Patterns to detect production database hostnames |
+| | `production_app_name_patterns` | Array\<Regex\> | `[/prod/i, /production/i]` | Patterns to detect production app names |
+| | `require_confirmation` | Boolean | `false` | Require interactive confirmation before running |
+| | `dry_run` | Boolean | `false` | Simulation mode - logs without executing |
+| **Anonymization** |
+| | `anonymization_tables` | Array\<Hash\> | `[]` | Tables to anonymize with strategies/queries |
+| | `anonymization_rollback_on_error` | Boolean | `true` | Rollback transaction on anonymization errors |
+| | `anonymization_retry_attempts` | Integer | `3` | Number of retry attempts for failed operations |
+| | `anonymization_retry_delay` | Float | `1.0` | Delay in seconds between retries |
+| **Verification** |
+| | `verify_anonymization` | Boolean | `true` | Verify anonymization succeeded |
+| | `fail_on_verification_error` | Boolean | `true` | Fail if verification detects issues |
+| | `pii_detection_patterns` | Hash | Built-in patterns | Custom regex patterns for PII detection |
+| | `anonymization_audit_file` | String | `nil` | Path to save audit report (JSON + text) |
+| | `run_pii_scan` | Boolean | `true` | Scan for unanonymized PII columns |
+| **Performance** |
+| | `parallel_connections` | Integer | `3` | Number of parallel database connections |
+| | `exclude_tables` | Array\<String\> | `[]` | Tables to exclude from cloning |
+| **Notifications** |
+| | `slack_enabled` | Boolean | `false` | Enable Slack notifications |
+| | `slack_webhook_url` | String | `nil` | Slack webhook URL |
+| | `slack_channel` | String | `nil` | Slack channel name (e.g., "#deployments") |
+| **Other** |
+| | `seeds_file_path` | String | `nil` | Path to seeds file to run after cloning |
+| | `postgis` | Boolean | `false` | Enable PostGIS extension support |
+| | `logger` | Logger | `Rails.logger` | Custom logger instance |
+| | `temp_dir` | String | `Rails.root.join("tmp")` | Directory for temporary files |
+| **Read-Only** |
+| | `target_app` | String | `ENV['APP']` | Target app name (auto-detected, not configurable) |
+
+### Anonymization Tables Configuration
+
+The `anonymization_tables` option accepts an array of hashes with these keys:
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `table` | String | Yes | Table name to anonymize |
+| `strategy` | Symbol | No* | Built-in or custom strategy name (`:user_anonymization`, `:phone_anonymization`, etc.) |
+| `query` | String | No* | Custom SQL UPDATE query |
+| `condition` | String | No | WHERE clause condition to apply |
+| `translation` | String | No | French translation for Slack notifications |
+
+\* Must specify either `strategy` OR `query`, not both.
+
+**Example:**
+```ruby
+config.anonymization_tables = [
+  # Using built-in strategy
+  { table: "users", strategy: :user_anonymization, translation: "utilisateurs" },
+
+  # Using built-in strategy with condition
+  { table: "comments", strategy: :user_anonymization, condition: "created_at < NOW() - INTERVAL '90 days'" },
+
+  # Using custom SQL query
+  { table: "api_keys", query: "UPDATE api_keys SET token = NULL, secret = NULL" },
+
+  # Using custom SQL query with condition
+  { table: "sessions", query: "UPDATE sessions SET data = '{}'", condition: "updated_at < NOW() - INTERVAL '7 days'" }
+]
+```
+
+### Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `APP` | Target Scalingo app name (auto-set on Scalingo) | `my-staging-app` |
+| `SCALINGO_API_TOKEN` | Scalingo API authentication token (required) | `tk-us-xxx...` |
+| `DATABASE_URL` | Target database URL (auto-set on Scalingo) | `postgres://...` |
+| `SCALINGO_POSTGRESQL_URL` | Alternative database URL (auto-set on Scalingo) | `postgres://...` |
+| `DRY_RUN` | Enable dry-run mode via environment | `true` or `false` |
+| `CI` | Indicates CI environment (skips confirmation) | `true` |
+| `CONTINUOUS_INTEGRATION` | Alternative CI indicator | `true` |
 
 ## ⏰ Scheduling Automated Clones
 

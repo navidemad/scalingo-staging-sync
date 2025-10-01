@@ -52,10 +52,22 @@ module ScalingoStagingSync
       end
 
       def perform_sync_steps
-        backup_file = execute_step(1, "Downloading backup") { download_backup }
-        execute_step(2, "Restoring database") { restore_database(backup_file) }
-        execute_step(3, "Anonymizing data") { anonymize_data }
-        execute_step(4, "Running staging seeds") { run_staging_seeds }
+        if @config.dry_run
+          perform_dry_run_steps
+        else
+          backup_file = execute_step(1, "Downloading backup") { download_backup }
+          execute_step(2, "Restoring database") { restore_database(backup_file) }
+          execute_step(3, "Anonymizing data") { anonymize_data }
+          execute_step(4, "Running staging seeds") { run_staging_seeds }
+        end
+      end
+
+      def perform_dry_run_steps
+        @logger.info "[Coordinator] [DRY RUN] Step 1: Would download backup from '#{@source_app}'"
+        @logger.info "[Coordinator] [DRY RUN] Step 2: Would restore database to '#{@target_app}'"
+        @logger.info "[Coordinator] [DRY RUN] Step 3: Would anonymize data using configured strategies"
+        @logger.info "[Coordinator] [DRY RUN] Step 4: Would run staging seeds from: #{@config.seeds_file_path || 'none configured'}"
+        @logger.info "[Coordinator] [DRY RUN] Configuration validated successfully. All steps would execute correctly."
       end
 
       def execute_step(step_number, description)

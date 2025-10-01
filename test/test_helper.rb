@@ -8,12 +8,31 @@ require "minitest/mock"
 require "logger"
 require "tmpdir"
 require "fileutils"
+require "pg"
+require "active_support/tagged_logging"
+require "active_support/testing/time_helpers"
+
+# Suppress noisy warnings in tests
+module WarningFilter
+  def warn(message)
+    # Suppress net-http Content-Type warnings
+    return if message.include?("net/http: Content-Type did not set")
+    # Suppress Minitest 6 deprecation warnings
+    return if message.include?("This will fail in Minitest 6")
+
+    super
+  end
+end
+
+Warning.extend(WarningFilter) if defined?(Warning)
 
 # Load support files
 Dir[File.expand_path("support/**/*.rb", __dir__)].each { |rb| require(rb) }
 
 # Test helper module for common test utilities
 module TestHelpers
+  include ActiveSupport::Testing::TimeHelpers
+
   def setup
     super
     # Reset configuration before each test
@@ -22,25 +41,36 @@ module TestHelpers
     # Set up test environment variables
     @original_env = {}
     @test_dir = Dir.mktmpdir("scalingo_staging_sync_test")
-    @logger = Logger.new(StringIO.new)
+    @logger = ActiveSupport::TaggedLogging.new(Logger.new(StringIO.new))
+
+    # Set default SCALINGO_API_TOKEN for tests
+    with_env("SCALINGO_API_TOKEN" => "test-token-123")
+
+    # Freeze time
+    freeze_time
   end
 
   def teardown
-    super
+    # Unfreeze time
+    travel_back
+
     # Clean up test directory
-    FileUtils.rm_rf(@test_dir) if @test_dir && File.exist?(@test_dir)
+    FileUtils.rm_rf(@test_dir) if @test_dir&.then { |dir| File.exist?(dir) }
 
     # Restore original environment variables
-    @original_env.each do |key, value|
+    @original_env&.each do |key, value|
       if value.nil?
         ENV.delete(key)
       else
         ENV[key] = value
       end
     end
+
+    super
   end
 
   def with_env(env_vars)
+    @original_env ||= {}
     env_vars.each do |key, value|
       @original_env[key] = ENV.fetch(key, nil) unless @original_env.key?(key)
       ENV[key] = value
@@ -60,20 +90,78 @@ module TestHelpers
   end
 
   def stub_rails
-    rails = Object.const_set(:Rails, Module.new) unless defined?(Rails)
+    unstub_rails if defined?(Rails)
+    rails = Object.const_set(:Rails, Module.new)
 
-    env = Minitest::Mock.new
-    env.expect(:production?, false)
-    env.expect(:to_s, "test")
+    env_mock = Class.new do
+      def production?
+        false
+      end
 
-    root = Minitest::Mock.new
-    root.expect(:join, Pathname.new(@test_dir), ["tmp"])
+      def to_s
+        "test"
+      end
+    end.new
 
-    rails.define_singleton_method(:env) { env }
-    rails.define_singleton_method(:root) { root }
+    root_mock = Class.new do
+      attr_reader :test_dir
+
+      def initialize(test_dir)
+        @test_dir = test_dir
+      end
+
+      def join(path)
+        Pathname.new(File.join(@test_dir, path))
+      end
+    end.new(@test_dir)
+
+    rails.define_singleton_method(:env) { env_mock }
+    rails.define_singleton_method(:root) { root_mock }
     rails.define_singleton_method(:logger) { @logger }
 
     rails
+  end
+
+  def setup_rails_mock(production: false, env_name: nil)
+    unstub_rails if defined?(Rails)
+    rails = Object.const_set(:Rails, Module.new)
+
+    environment_name = env_name || (production ? "production" : "test")
+
+    env_mock = Class.new do
+      attr_reader :is_production, :environment_name
+
+      def initialize(is_production, environment_name)
+        @is_production = is_production
+        @environment_name = environment_name
+      end
+
+      def production?
+        @is_production
+      end
+
+      def to_s
+        @environment_name
+      end
+    end.new(production, environment_name)
+
+    root_mock = Class.new do
+      attr_reader :test_dir
+
+      def initialize(test_dir)
+        @test_dir = test_dir
+      end
+
+      def join(path)
+        Pathname.new(File.join(@test_dir, path))
+      end
+    end.new(@test_dir)
+
+    rails.define_singleton_method(:env) { env_mock }
+    rails.define_singleton_method(:root) { root_mock }
+    rails.define_singleton_method(:logger) { @logger }
+
+    env_mock
   end
 
   def unstub_rails

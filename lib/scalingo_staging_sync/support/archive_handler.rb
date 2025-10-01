@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "open3"
+
 module ScalingoStagingSync
   module Support
     # Module for archive extraction and file management operations
@@ -24,8 +26,12 @@ module ScalingoStagingSync
 
       def extract_archive(archive)
         log_context(:info, "Running tar extraction command")
-        success = system("tar -xzf \"#{archive}\"")
-        raise BackupError, "Failed to extract archive: #{archive}" unless success
+        _, error, status = Open3.capture3("tar", "-xzf", archive)
+
+        unless status.success?
+          log_context(:error, "Failed to extract archive", archive: archive, error: error)
+          raise "Failed to extract archive: #{archive}"
+        end
 
         log_context(:info, "Archive extraction completed successfully")
       end
@@ -33,15 +39,15 @@ module ScalingoStagingSync
       def find_and_validate_dump_file
         log_context(:info, "Searching for dump file in extracted contents")
         dump_file = find_dump_file
-        raise BackupError, "No dump file found in archive" unless dump_file
+        raise "No dump file found in archive" unless dump_file
 
         log_context(:info, "Found dump file", dump_file: dump_file, size: format_bytes(File.size(dump_file)))
         dump_file
       end
 
       def standardize_dump_file(dump_file)
-        standardized_path = @temp_dir.join("production.dump")
-        log_context(:info, "Standardizing dump filename", from: dump_file, to: standardized_path.to_s)
+        standardized_path = File.join(@temp_dir, "production.dump")
+        log_context(:info, "Standardizing dump filename", from: dump_file, to: standardized_path)
         FileUtils.mv(dump_file, standardized_path)
         standardized_path
       end

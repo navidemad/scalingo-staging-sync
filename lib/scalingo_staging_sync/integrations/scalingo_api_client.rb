@@ -18,7 +18,7 @@ module ScalingoStagingSync
 
         raise BackupService::AddonNotFoundError, "No PostgreSQL addon found for app #{@source_app}" unless pg_addon
 
-        @logger.info "[ScalingoApiClient] Found PostgreSQL addon", addon_id: pg_addon[:id]
+        @logger.info "[ScalingoApiClient] Found PostgreSQL addon: #{pg_addon[:id]}"
         pg_addon[:id]
       end
 
@@ -43,9 +43,7 @@ module ScalingoStagingSync
         raise BackupService::BackupNotFoundError, "No backups found for addon #{addon_id}" if backups.empty?
 
         latest = backups.max_by { |b| Time.zone.parse(b[:created_at]) }
-        @logger.info "[ScalingoApiClient] Found latest backup",
-                     backup_id: latest[:id],
-                     created_at: latest[:created_at]
+        @logger.info "[ScalingoApiClient] Found latest backup: #{latest[:id]} (created: #{latest[:created_at]})"
         latest
       end
 

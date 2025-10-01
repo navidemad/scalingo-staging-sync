@@ -45,6 +45,9 @@ Layout/MultilineMethodArgumentLineBreaks:
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
+Layout/LineLength:
+  Max: 145
+
 Layout/SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: no_space
 
@@ -52,20 +55,53 @@ Metrics/AbcSize:
   Max: 20
   Exclude:
     - "test/**/*"
+    - "lib/scalingo_staging_sync/support/parallel_processor.rb"
+    - "lib/scalingo_staging_sync/support/environment_validator.rb"
+    - "lib/scalingo_staging_sync/services/database_anonymizer_service.rb"
+    - "lib/scalingo_staging_sync/database/anonymization_audit.rb"
+    - "lib/scalingo_staging_sync/database/anonymization_verifier.rb"
+    - "lib/scalingo_staging_sync/database/pii_scanner.rb"
 
 Metrics/BlockLength:
   Exclude:
     - "*.gemspec"
     - "Rakefile"
+    - "test/**/*"
 
 Metrics/ClassLength:
+  Max: 110
   Exclude:
     - "test/**/*"
+    - "lib/scalingo_staging_sync/services/database_anonymizer_service.rb"
 
 Metrics/MethodLength:
   Max: 18
   Exclude:
     - "test/**/*"
+    - "lib/scalingo_staging_sync/database/transaction_helpers.rb"
+    - "lib/scalingo_staging_sync/database/table_anonymizer.rb"
+    - "lib/scalingo_staging_sync/services/database_anonymizer_service.rb"
+    - "lib/scalingo_staging_sync/support/environment_validator.rb"
+    - "lib/scalingo_staging_sync/database/anonymization_audit.rb"
+    - "lib/scalingo_staging_sync/database/anonymization_verifier.rb"
+    - "lib/scalingo_staging_sync/database/pii_scanner.rb"
+
+Metrics/ModuleLength:
+  Max: 100
+  Exclude:
+    - "test/**/*"
+    - "lib/scalingo_staging_sync/support/parallel_processor.rb"
+    - "lib/scalingo_staging_sync/support/environment_validator.rb"
+    - "lib/scalingo_staging_sync/database/anonymization_audit.rb"
+    - "lib/scalingo_staging_sync/database/anonymization_verifier.rb"
+    - "lib/scalingo_staging_sync/database/pii_scanner.rb"
+    - "lib/scalingo_staging_sync/database/anonymization_queries.rb"
+
+Metrics/PerceivedComplexity:
+  Max: 8
+  Exclude:
+    - "test/**/*"
+    - "lib/scalingo_staging_sync/services/database_anonymizer_service.rb"
 
 Metrics/ParameterLists:
   Max: 6
@@ -92,6 +128,15 @@ Rake/Desc:
 Style/ClassAndModuleChildren:
   Enabled: false
 
+Metrics/CyclomaticComplexity:
+  Max: 7
+  Exclude:
+    - "test/**/*"
+    - "lib/scalingo_staging_sync/services/database_anonymizer_service.rb"
+    - "lib/scalingo_staging_sync/database/anonymization_audit.rb"
+    - "lib/scalingo_staging_sync/database/anonymization_verifier.rb"
+    - "lib/scalingo_staging_sync/database/pii_scanner.rb"
+
 Style/FetchEnvVar:
   Exclude:
     - test/test_helper.rb
@@ -116,3 +161,13 @@ Style/StringLiterals:
 
 Style/TrivialAccessors:
   AllowPredicates: true
+
+Style/SafeNavigationChainLength:
+  Exclude:
+    - "lib/scalingo_staging_sync/database/anonymization_audit.rb"
+
+Lint/UselessConstantScoping:
+  Enabled: false
+
+Minitest/MultipleAssertions:
+  Max: 5

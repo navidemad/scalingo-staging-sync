@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "open3"
+
 module ScalingoStagingSync
   module Database
     # Module for TOC (Table of Contents) filtering for pg_restore
@@ -18,7 +20,13 @@ module ScalingoStagingSync
 
       def generate_toc_listing(backup_file)
         @logger.info "[DatabaseRestoreService] Running pg_restore -l to list backup contents..."
-        toc_output = `pg_restore -l "#{backup_file}"`
+        toc_output, error, status = Open3.capture3("pg_restore", "-l", backup_file)
+
+        unless status.success?
+          @logger.error "[DatabaseRestoreService] Failed to generate TOC listing: #{error}"
+          raise "Failed to generate TOC listing with pg_restore -l"
+        end
+
         @logger.info "[DatabaseRestoreService] TOC listing completed: #{toc_output.lines.size} total entries"
         toc_output
       end
@@ -51,7 +59,7 @@ module ScalingoStagingSync
       end
 
       def save_toc_file(filtered_lines, original_count)
-        toc_file = File.join(Dir.tmpdir, "filtered_#{Time.now.to_i}.toc")
+        toc_file = File.join(Dir.tmpdir, "filtered_#{Time.current.to_i}.toc")
         File.write(toc_file, filtered_lines.join)
 
         @logger.info "[DatabaseRestoreService] TOC file generated: #{toc_file}"

@@ -119,7 +119,7 @@ module ScalingoStagingSync
         backup_info = with_retry { @api_client.latest_backup(db_client, addon_id) }
         download_url = with_retry { @api_client.backup_download_url(db_client, addon_id, backup_info[:id]) }
 
-        filename = "backup-#{Time.zone.now.strftime('%Y%m%d-%H%M%S')}.tar.gz"
+        filename = "backup-#{Time.current.strftime('%Y%m%d-%H%M%S')}.tar.gz"
         @file_downloader.download(download_url, filename)
 
         log_context(:info, "Backup download completed", filename: filename)

@@ -1,7 +1,7 @@
 ---
 name: gem-test
 description: Use this agent when you need to write tests for gem functionality, including unit tests for modules, classes, and Rails integration tests. Examples: <example>Context: User has just implemented a new ActiveRecord extension in their gem. user: 'I just added a new concern for soft deletes in my gem. Can you write tests for this?' assistant: 'I'll use the test-writer agent to create comprehensive tests for your soft delete concern.' <commentary>Since the user needs tests for gem functionality, use the test-writer agent to create appropriate test coverage.</commentary></example> <example>Context: User has created a new Rails generator in their gem. user: 'I added a new generator for creating configuration files. Here's the generator code...' assistant: 'Let me use the test-writer agent to write tests for your configuration generator.' <commentary>The user has new gem functionality that needs test coverage, so use the test-writer agent to create appropriate tests.</commentary></example>
-model: opus
+model: claude-sonnet-4-5-20250929
 color: green
 ---
 

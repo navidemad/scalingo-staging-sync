@@ -19,14 +19,15 @@ module ScalingoStagingSync
       def download(url, filename)
         uri = URI(url)
         bytes_downloaded = 0
-        start_time = Time.zone.now
+        start_time = Time.current
 
         http = create_http_connection(uri)
         request = Net::HTTP::Get.new(uri)
+        request["Accept"] = "application/octet-stream"
 
         download_with_progress(http, request, filename, bytes_downloaded)
 
-        elapsed = (Time.zone.now - start_time).round(2)
+        elapsed = (Time.current - start_time).round(2)
         log_download_completion(filename, bytes_downloaded, elapsed)
       rescue StandardError => e
         handle_download_error(e, url, filename)

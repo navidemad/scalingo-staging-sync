@@ -31,4 +31,52 @@ ScalingoStagingSync.configure do |config|
   # Optional: Whether to use PostGIS extension (default: false)
   # Set to true if your database uses PostGIS
   # config.postgis = true
+
+  # Optional: Anonymization configuration
+  # Configure which tables to anonymize and how to anonymize them
+  # If not configured, defaults to legacy tables (users, phone_numbers, payment_methods) with deprecation warning
+  #
+  # Each table entry can have:
+  #   - table: (required) table name as string
+  #   - strategy: (optional) built-in strategy name as symbol
+  #   - query: (optional) custom SQL query string (alternative to strategy)
+  #   - condition: (optional) additional WHERE clause condition
+  #   - translation: (optional) French translation for Slack notifications
+  #
+  # Built-in strategies:
+  #   - :user_anonymization - Anonymize user tables (email, names, addresses, tokens)
+  #   - :phone_anonymization - Anonymize phone numbers
+  #   - :payment_anonymization - Anonymize payment method details
+  #   - :email_anonymization - Anonymize only email addresses
+  #   - :address_anonymization - Anonymize only address fields
+  #
+  # Example configurations:
+  #
+  # config.anonymization_tables = [
+  #   # Using built-in strategies
+  #   { table: "users", strategy: :user_anonymization, translation: "utilisateurs" },
+  #   { table: "phone_numbers", strategy: :phone_anonymization, translation: "téléphones" },
+  #   { table: "payment_methods", strategy: :payment_anonymization, translation: "moyens de paiement" },
+  #
+  #   # Using built-in strategies with conditions
+  #   { table: "old_users", strategy: :user_anonymization, condition: "created_at < NOW() - INTERVAL '1 year'" },
+  #
+  #   # Using custom SQL queries
+  #   { table: "custom_table", query: "UPDATE custom_table SET field = NULL WHERE sensitive = true" },
+  #   { table: "api_keys", query: "UPDATE api_keys SET key = MD5(RANDOM()::text)" },
+  #
+  #   # Combine strategies with additional tables
+  #   { table: "emails", strategy: :email_anonymization },
+  #   { table: "addresses", strategy: :address_anonymization }
+  # ]
+  #
+  # To register custom strategies in your application:
+  #
+  # ScalingoStagingSync::Database::AnonymizationStrategies.register_strategy(:my_custom_strategy) do |table, condition|
+  #   <<~SQL.squish
+  #     UPDATE #{table}
+  #     SET custom_field = 'anonymized'
+  #     WHERE sensitive = true
+  #   SQL
+  # end
 end
