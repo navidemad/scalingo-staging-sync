@@ -60,7 +60,7 @@ module ScalingoStagingSync
 
         def user_identity_fields
           <<~FIELDS.squish
-            email = SUBSTRING(encode(digest(email::bytea, 'sha256'), 'hex'), 1, 8) || '@demo.yespark.fr',
+            email = 'user' || id || '@demo.yespark.fr',
             email_md5 = MD5(email),
             first_name = 'Demo',
             last_name = 'User' || id,
@@ -109,7 +109,7 @@ module ScalingoStagingSync
         def email_anonymization_query(table)
           <<~SQL.squish
             UPDATE #{table}
-            SET email = SUBSTRING(encode(digest(email::bytea, 'sha256'), 'hex'), 1, 8) || '@demo.example.com'
+            SET email = COALESCE(CAST(id AS TEXT), encode(digest(email::bytea, 'sha256'), 'hex')) || '@demo.example.com'
             WHERE email IS NOT NULL
           SQL
         end

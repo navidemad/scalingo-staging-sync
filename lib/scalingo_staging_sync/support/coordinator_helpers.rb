@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require_relative "../database/size_estimator"
+
 module ScalingoStagingSync
   module Support
     # Module containing helper methods for Coordinator
     module CoordinatorHelpers
+      include Database::SizeEstimator
+
       def cleanup_temp_files
         @logger.info "[Coordinator] Cleaning up temporary files..."
 
@@ -52,6 +56,32 @@ module ScalingoStagingSync
         @logger.info "[Coordinator] Performing emergency cleanup..."
         cleanup_temp_files
         raise error
+      end
+
+      def estimate_current_database_size
+        @logger.info "[Coordinator] Estimating current database size..."
+        connection = nil
+        connection = PG.connect(@database_url)
+        size_info = estimate_database_size(connection)
+
+        log_size_info(size_info)
+        @slack_notifier.notify_database_size(size_info)
+      rescue PG::Error => e
+        @logger.warn "[Coordinator] Could not estimate database size: #{e.message}"
+      ensure
+        connection&.close
+      end
+
+      def log_size_info(size_info)
+        @logger.info "[Coordinator] Current database size: #{size_info[:total_size_pretty]} " \
+                     "(#{size_info[:total_tables]} tables, #{size_info[:excluded_tables_count]} will be excluded)"
+
+        return unless size_info[:table_sizes].any?
+
+        @logger.info "[Coordinator] Largest tables:"
+        size_info[:table_sizes].first(5).each_with_index do |table, index|
+          @logger.info "[Coordinator]   #{index + 1}. #{table[:table]}: #{table[:size_pretty]}"
+        end
       end
     end
   end

@@ -19,7 +19,7 @@ module ScalingoStagingSync
 
       def user_identity_fields
         <<~FIELDS.squish
-          email = SUBSTRING(encode(digest(email::bytea, 'sha256'), 'hex'), 1, 8) || '@demo.yespark.fr',
+          email = 'user' || id || '@demo.yespark.fr',
           email_md5 = MD5(email),
           first_name = 'Demo',
           last_name = 'User' || id,

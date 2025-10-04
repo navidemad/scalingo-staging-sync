@@ -35,6 +35,7 @@ module ScalingoStagingSync
         @logger.tagged("SCALINGO_STAGING_SYNC") do
           log_sync_start
           notify_start
+          estimate_current_database_size
 
           perform_sync_steps
           finalize_sync
@@ -145,7 +146,7 @@ module ScalingoStagingSync
         end
       end
 
-      # Notification and cleanup methods are provided by CoordinatorHelpers module
+      # Database size estimation and notification methods are provided by CoordinatorHelpers module
     end
   end
 end

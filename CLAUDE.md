@@ -359,7 +359,7 @@ The gem provides 5 built-in strategies that can be used in the `anonymization_ta
 
 ### 1. `:user_anonymization`
 Comprehensive user data anonymization:
-- **Email**: Hashed email with @demo.yespark.fr domain
+- **Email**: user{id}@demo.yespark.fr (guaranteed unique per user)
 - **Names**: First name → "Demo", Last name → "User{id}"
 - **Payment Info**: credit_card_last_4, iban_last4 → "0000", stripe_customer_id → NULL
 - **Address**: Generic Paris address (8 rue du sentier, 75002)
@@ -376,7 +376,8 @@ Payment method anonymization:
 
 ### 4. `:email_anonymization`
 Email-only anonymization (lighter than full user):
-- Generates hashed email: `{hash}@demo.example.com`
+- Uses ID if available: `{id}@demo.example.com`
+- Falls back to full hash if no ID: `{sha256_hash}@demo.example.com`
 
 ### 5. `:address_anonymization`
 Address field anonymization:
