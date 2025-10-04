@@ -4,6 +4,7 @@ require "open3"
 require_relative "../database/database_operations"
 require_relative "../database/toc_filter"
 require_relative "../database/restore_command_builder"
+require_relative "../database/size_estimator"
 
 module ScalingoStagingSync
   module Services
@@ -11,6 +12,7 @@ module ScalingoStagingSync
       include Database::DatabaseOperations
       include Database::TocFilter
       include Database::RestoreCommandBuilder
+      include Database::SizeEstimator
 
       def initialize(database_url, logger: Rails.logger)
         if ScalingoStagingSync.configuration.postgis
@@ -67,8 +69,36 @@ module ScalingoStagingSync
         @logger.info "[DatabaseRestoreService] Checking installed PostgreSQL extensions..."
         display_installed_extensions
 
+        @logger.info "[DatabaseRestoreService] Estimating database size..."
+        estimate_and_notify_database_size
+
         @logger.info "[DatabaseRestoreService] ✅ Database restore completed successfully"
         @slack_notifier.restore_step("✅ Base de données restaurée avec succès")
+      end
+
+      def estimate_and_notify_database_size
+        connection = nil
+        connection = PG.connect(@pg_url)
+        size_info = estimate_database_size(connection)
+
+        log_size_info(size_info)
+        @slack_notifier.notify_database_size(size_info)
+      rescue PG::Error => e
+        @logger.warn "[DatabaseRestoreService] Could not estimate database size: #{e.message}"
+      ensure
+        connection&.close
+      end
+
+      def log_size_info(size_info)
+        @logger.info "[DatabaseRestoreService] Database size: #{size_info[:total_size_pretty]} " \
+                     "(#{size_info[:total_tables]} tables, #{size_info[:excluded_tables_count]} excluded)"
+
+        return unless size_info[:table_sizes].any?
+
+        @logger.info "[DatabaseRestoreService] Largest tables:"
+        size_info[:table_sizes].first(5).each_with_index do |table, index|
+          @logger.info "[DatabaseRestoreService]   #{index + 1}. #{table[:table]}: #{table[:size_pretty]}"
+        end
       end
 
       def handle_restore_error(error)

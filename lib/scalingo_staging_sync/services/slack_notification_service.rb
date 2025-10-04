@@ -62,6 +62,17 @@ module ScalingoStagingSync
         @logger.warn "[SlackNotificationService] Failed to send warning notification: #{e.message}"
       end
 
+      def notify_database_size(size_info)
+        return unless @enabled
+
+        @logger.info "[SlackNotificationService] Sending database size notification"
+
+        message = format_database_size_message(size_info)
+        send_to_slack(message, username: "Demo Database Sync", icon_emoji: ":bar_chart:")
+      rescue StandardError => e
+        @logger.warn "[SlackNotificationService] Failed to send database size notification: #{e.message}"
+      end
+
       private
 
       def slack_enabled?

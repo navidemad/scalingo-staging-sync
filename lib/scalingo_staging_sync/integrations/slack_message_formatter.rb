@@ -49,6 +49,26 @@ module ScalingoStagingSync
       def build_error_message(error_message, context)
         context ? "#{context}: #{error_message}" : error_message
       end
+
+      def format_database_size_message(size_info)
+        message_parts = [
+          "📊 *Estimation Taille Base de Données*",
+          "",
+          "• Taille totale estimée: *#{size_info[:total_size_pretty]}*",
+          "• Tables incluses: #{size_info[:total_tables]}",
+          "• Tables exclues: #{size_info[:excluded_tables_count]}"
+        ]
+
+        if size_info[:table_sizes].any?
+          message_parts << ""
+          message_parts << "📈 Top 10 tables les plus volumineuses:"
+          size_info[:table_sizes].each_with_index do |table, index|
+            message_parts << "  #{index + 1}. #{table[:table]}: #{table[:size_pretty]}"
+          end
+        end
+
+        message_parts.join("\n")
+      end
     end
   end
 end
