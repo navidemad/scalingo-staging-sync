@@ -68,19 +68,23 @@ class DatabaseOperationsTest < Minitest::Test
 
     def test_runs_rails_db_drop
       drop_called = false
-      @service.stub(
-        :system,
+      status = Minitest::Mock.new
+      status.expect(:success?, true)
+
+      Open3.stub(
+        :capture3,
         lambda { |env, *args|
           if args.include?("db:drop")
             assert_equal @database_url, env["DATABASE_URL"]
             assert_equal "1", env["DISABLE_DATABASE_ENVIRONMENT_CHECK"]
             drop_called = true
-            true
           end
+          ["", "", status]
         }
       ) do
         @service.drop_database
         assert drop_called, "Expected db:drop to be called"
+        status.verify
       end
 
       logs = @logger.instance_variable_get(:@logdev).dev.string
@@ -89,11 +93,16 @@ class DatabaseOperationsTest < Minitest::Test
     end
 
     def test_continues_on_drop_failure
-      @service.stub(:system, false) do
+      status = Minitest::Mock.new
+      status.expect(:success?, false)
+
+      Open3.stub(:capture3, ["", "", status]) do
         @service.drop_database
 
         logs = @logger.instance_variable_get(:@logdev).dev.string
         assert_includes logs, "db:drop failed (database might not exist), continuing"
+
+        status.verify
       end
     end
   end
@@ -109,18 +118,22 @@ class DatabaseOperationsTest < Minitest::Test
 
     def test_runs_rails_db_create
       create_called = false
-      @service.stub(
-        :system,
+      status = Minitest::Mock.new
+      status.expect(:success?, true)
+
+      Open3.stub(
+        :capture3,
         lambda { |env, *args|
           if args.include?("db:create")
             assert_equal @database_url, env["DATABASE_URL"]
             create_called = true
           end
-          true
+          ["", "", status]
         }
       ) do
         @service.create_database
         assert create_called, "Expected db:create to be called"
+        status.verify
       end
 
       logs = @logger.instance_variable_get(:@logdev).dev.string
@@ -129,7 +142,10 @@ class DatabaseOperationsTest < Minitest::Test
     end
 
     def test_raises_error_on_create_failure
-      @service.stub(:system, false) do
+      status = Minitest::Mock.new
+      status.expect(:success?, false)
+
+      Open3.stub(:capture3, ["", "", status]) do
         error = assert_raises(RuntimeError) do
           @service.create_database
         end
@@ -138,6 +154,8 @@ class DatabaseOperationsTest < Minitest::Test
 
         logs = @logger.instance_variable_get(:@logdev).dev.string
         assert_includes logs, "Failed to create database with db:create"
+
+        status.verify
       end
     end
   end
@@ -153,18 +171,22 @@ class DatabaseOperationsTest < Minitest::Test
 
     def test_runs_rails_db_migrate
       migrate_called = false
-      @service.stub(
-        :system,
+      status = Minitest::Mock.new
+      status.expect(:success?, true)
+
+      Open3.stub(
+        :capture3,
         lambda { |env, *args|
           if args.include?("db:migrate")
             assert_equal @database_url, env["DATABASE_URL"]
             migrate_called = true
-            true
           end
+          ["", "", status]
         }
       ) do
         @service.run_migrations
         assert migrate_called, "Expected db:migrate to be called"
+        status.verify
       end
 
       logs = @logger.instance_variable_get(:@logdev).dev.string
@@ -173,7 +195,10 @@ class DatabaseOperationsTest < Minitest::Test
     end
 
     def test_raises_error_on_migration_failure
-      @service.stub(:system, false) do
+      status = Minitest::Mock.new
+      status.expect(:success?, false)
+
+      Open3.stub(:capture3, ["", "", status]) do
         error = assert_raises(RuntimeError) do
           @service.run_migrations
         end
@@ -182,6 +207,8 @@ class DatabaseOperationsTest < Minitest::Test
 
         logs = @logger.instance_variable_get(:@logdev).dev.string
         assert_includes logs, "Migration failed"
+
+        status.verify
       end
     end
   end

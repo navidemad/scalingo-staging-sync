@@ -24,9 +24,9 @@ module ScalingoStagingSync
           "DATABASE_URL" => @database_url,
           "DISABLE_DATABASE_ENVIRONMENT_CHECK" => "1"
         }
-        drop_result = system(env, "bin/rails", "db:drop", err: %i[child out])
+        _output, _error, status = Open3.capture3(env, "bin/rails", "db:drop")
 
-        if drop_result
+        if status.success?
           @logger.info "[DatabaseRestoreService] Database dropped successfully"
         else
           @logger.warn "[DatabaseRestoreService] db:drop failed (database might not exist), continuing..."
@@ -37,9 +37,9 @@ module ScalingoStagingSync
         @logger.info "[DatabaseRestoreService] Creating fresh database using Rails db:create..."
 
         env = { "DATABASE_URL" => @database_url }
-        create_result = system(env, "bin/rails", "db:create")
+        _output, _error, status = Open3.capture3(env, "bin/rails", "db:create")
 
-        unless create_result
+        unless status.success?
           @logger.error "[DatabaseRestoreService] Failed to create database with db:create"
           @slack_notifier.restore_error("Échec création base de données")
           raise "Failed to create database"
@@ -53,9 +53,9 @@ module ScalingoStagingSync
         @slack_notifier.restore_step("🔄 Exécution des migrations...")
 
         env = { "DATABASE_URL" => @database_url }
-        result = system(env, "bin/rails", "db:migrate")
+        _output, _error, status = Open3.capture3(env, "bin/rails", "db:migrate")
 
-        if result
+        if status.success?
           @logger.info "[DatabaseRestoreService] ✓ Migrations completed successfully"
           @slack_notifier.restore_step("✓ Migrations terminées")
         else
