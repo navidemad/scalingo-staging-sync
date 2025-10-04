@@ -24,7 +24,17 @@ module ScalingoStagingSync
         warnings = []
 
         all_tables = fetch_all_tables(connection)
-        unanonymized_tables = all_tables - anonymized_tables
+        excluded_tables = ScalingoStagingSync.configuration.exclude_tables || []
+        rails_tables = %w[
+          schema_migrations
+          ar_internal_metadata
+          action_text_rich_texts
+          active_storage_attachments
+          active_storage_blobs
+          rmp_traces
+          spatial_ref_sys
+        ]
+        unanonymized_tables = all_tables - anonymized_tables - excluded_tables - rails_tables
 
         unanonymized_tables.each do |table|
           pii_columns = scan_table_for_pii(connection, table)
