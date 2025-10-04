@@ -79,7 +79,7 @@ module ScalingoStagingSync
         return unless size_info[:table_sizes].any?
 
         @logger.info "[Coordinator] Largest tables:"
-        size_info[:table_sizes].first(5).each_with_index do |table, index|
+        size_info[:table_sizes].each_with_index do |table, index|
           @logger.info "[Coordinator]   #{index + 1}. #{table[:table]}: #{table[:size_pretty]}"
         end
       end
