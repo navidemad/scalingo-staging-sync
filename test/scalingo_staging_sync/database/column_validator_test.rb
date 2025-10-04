@@ -27,17 +27,17 @@ module ScalingoStagingSync
       end
 
       def test_validate_columns_exist_with_missing_columns
-        required_columns = %w[id email first_name anonymized_at]
-        existing_columns = %w[id email last_name] # missing first_name and anonymized_at
+        required_columns = %w[id email first_name zendesk_user_id]
+        existing_columns = %w[id email last_name] # missing first_name and zendesk_user_id
 
         stub_fetch_columns("users", existing_columns)
 
         result = validate_columns_exist(@connection, "users", required_columns)
 
         refute result[:success], "Validation should fail when columns are missing"
-        assert_equal %w[anonymized_at first_name], result[:missing_columns].sort
+        assert_equal %w[first_name zendesk_user_id], result[:missing_columns].sort
         assert_includes result[:errors].join, "first_name"
-        assert_includes result[:errors].join, "anonymized_at"
+        assert_includes result[:errors].join, "zendesk_user_id"
       end
 
       def test_validate_columns_exist_with_nonexistent_table

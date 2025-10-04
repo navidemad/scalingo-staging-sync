@@ -190,10 +190,7 @@ module ScalingoStagingSync
         query = <<~SQL.squish
           SELECT COUNT(*)
           FROM users
-          WHERE google_token IS NOT NULL
-          OR facebook_token IS NOT NULL
-          OR apple_id IS NOT NULL
-          OR stripe_customer_id IS NOT NULL
+          WHERE stripe_customer_id IS NOT NULL
         SQL
 
         result = connection.exec(query)

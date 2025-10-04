@@ -78,12 +78,8 @@ module ScalingoStagingSync
           postal_code
           birth_date
           birth_place
-          google_token
-          facebook_token
-          apple_id
           billing_extra
           zendesk_user_id
-          anonymized_at
         ],
         "phone_numbers" => %w[id number user_id],
         "payment_methods" => %w[id card_last4]

@@ -9,7 +9,6 @@ module ScalingoStagingSync
           connection: connection,
           table_name: "users",
           query: users_anonymization_query,
-          where_clause: "anonymized_at IS NULL",
           description: "email, names, personal data"
         )
       end

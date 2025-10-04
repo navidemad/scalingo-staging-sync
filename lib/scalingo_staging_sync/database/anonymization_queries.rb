@@ -8,7 +8,6 @@ module ScalingoStagingSync
         <<~SQL.squish
           UPDATE users
           SET #{users_anonymization_fields}
-          WHERE anonymized_at IS NULL
         SQL
       end
 
@@ -44,9 +43,6 @@ module ScalingoStagingSync
 
       def user_token_fields
         <<~FIELDS.squish
-          google_token = NULL,
-          facebook_token = NULL,
-          apple_id = NULL,
           billing_extra = NULL,
           zendesk_user_id = NULL
         FIELDS
@@ -76,8 +72,7 @@ module ScalingoStagingSync
             COUNT(*) FILTER (WHERE first_name != 'Demo' AND first_name IS NOT NULL) as real_names,
             COUNT(*) FILTER (WHERE credit_card_last_4 != '0000' AND credit_card_last_4 IS NOT NULL) as real_credit_cards,
             COUNT(*) FILTER (WHERE iban_last4 != '0000' AND iban_last4 IS NOT NULL) as real_ibans,
-            COUNT(*) FILTER (WHERE google_token IS NOT NULL OR facebook_token IS NOT NULL
-                             OR apple_id IS NOT NULL OR stripe_customer_id IS NOT NULL) as remaining_tokens,
+            COUNT(*) FILTER (WHERE stripe_customer_id IS NOT NULL) as remaining_tokens,
             COUNT(*) FILTER (WHERE birth_date IS NOT NULL OR birth_place IS NOT NULL) as birth_dates,
             COUNT(*) as total_rows
           FROM users

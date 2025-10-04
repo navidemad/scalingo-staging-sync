@@ -51,7 +51,6 @@ module ScalingoStagingSync
           <<~SQL.squish
             UPDATE #{table}
             SET #{user_anonymization_fields}
-            WHERE anonymized_at IS NULL
           SQL
         end
 
@@ -85,9 +84,6 @@ module ScalingoStagingSync
 
         def user_token_fields
           <<~FIELDS.squish
-            google_token = NULL,
-            facebook_token = NULL,
-            apple_id = NULL,
             billing_extra = NULL,
             zendesk_user_id = NULL
           FIELDS

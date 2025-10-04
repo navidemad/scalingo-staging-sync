@@ -363,7 +363,6 @@ Comprehensive user data anonymization:
 - **Names**: First name → "Demo", Last name → "User{id}"
 - **Payment Info**: credit_card_last_4, iban_last4 → "0000", stripe_customer_id → NULL
 - **Address**: Generic Paris address (8 rue du sentier, 75002)
-- **Tokens**: google_token, facebook_token, apple_id → NULL
 - **Personal**: birth_date, birth_place, billing_extra, zendesk_user_id → NULL
 
 ### 2. `:phone_anonymization`
