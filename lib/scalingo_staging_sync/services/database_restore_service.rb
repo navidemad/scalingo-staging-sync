@@ -22,7 +22,7 @@ module ScalingoStagingSync
           @pg_url = database_url
         end
         @logger = logger
-        @slack_notifier = ScalingoStagingSync::Services::SlackNotificationService.new(logger: logger)
+        @slack_notifier = Services::SlackNotificationService.new(logger: logger)
       end
 
       def restore!(backup_file, toc_file: nil, exclude_tables: [])

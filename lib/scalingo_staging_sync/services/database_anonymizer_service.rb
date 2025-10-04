@@ -40,7 +40,7 @@ module ScalingoStagingSync
         end
         @parallel_connections = parallel_connections
         @logger = logger
-        @slack_notifier = ScalingoStagingSync::Services::SlackNotificationService.new(logger: logger)
+        @slack_notifier = Services::SlackNotificationService.new(logger: logger)
         @anonymization_tables = load_anonymization_tables
         @work_queues = generate_work_queues
         @audit_records = []

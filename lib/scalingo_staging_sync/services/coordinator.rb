@@ -15,7 +15,7 @@ module ScalingoStagingSync
         @logger = logger || @config.logger
         @temp_dir = @config.temp_dir
         @start_time = Time.current
-        @slack_notifier = ScalingoStagingSync::Services::SlackNotificationService.new(logger: @logger)
+        @slack_notifier = Services::SlackNotificationService.new(logger: @logger)
 
         # Get app names from configuration
         @target_app = @config.target_app

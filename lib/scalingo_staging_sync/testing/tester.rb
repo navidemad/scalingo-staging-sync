@@ -16,7 +16,7 @@ module ScalingoStagingSync
       def initialize(logger: Rails.logger)
         @logger = logger
         @results = {}
-        @slack_notifier = ScalingoStagingSync::Services::SlackNotificationService.new(logger: logger)
+        @slack_notifier = Services::SlackNotificationService.new(logger: logger)
       end
 
       def run_tests!
@@ -66,7 +66,7 @@ module ScalingoStagingSync
         @logger.info "[Tester] Testing Slack integration..."
         section_header("Slack Integration")
 
-        if defined?(SlackNotificationService)
+        if defined?(Services::SlackNotificationService)
           pass "SlackNotificationService class is loaded"
           @logger.info "[Tester] SlackNotificationService module is available"
           test_slack_methods
