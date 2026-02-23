@@ -16,7 +16,6 @@ module ScalingoStagingSync
     config_accessor :exclude_tables, default: []
     config_accessor :parallel_connections, default: 3
     config_accessor :seeds_file_path, default: nil
-    config_accessor :postgis, default: false
 
     # Transaction and error handling configuration
     config_accessor :anonymization_rollback_on_error, default: true

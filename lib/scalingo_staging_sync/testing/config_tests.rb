@@ -68,7 +68,6 @@ module ScalingoStagingSync
 
       def log_other_settings
         info "  Parallel connections: #{@config.parallel_connections}"
-        info "  PostGIS enabled: #{@config.postgis}"
 
         return unless @config.seeds_file_path.present?
 

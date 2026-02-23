@@ -327,8 +327,6 @@ ScalingoStagingSync.configure do |config|
   # Run seeds after cloning (optional)
   config.seeds_file_path = "db/demo_seeds.rb"
 
-  # PostGIS extension support (default: false)
-  config.postgis = false
 end
 ```
 
@@ -631,7 +629,6 @@ Here's a complete reference of all available configuration options:
 | | `slack_channel` | String | `nil` | Slack channel name (e.g., "#deployments") |
 | **Other** |
 | | `seeds_file_path` | String | `nil` | Path to seeds file to run after cloning |
-| | `postgis` | Boolean | `false` | Enable PostGIS extension support |
 | | `logger` | Logger | `Rails.logger` | Custom logger instance |
 | | `temp_dir` | String | `Rails.root.join("tmp")` | Directory for temporary files |
 | **Read-Only** |

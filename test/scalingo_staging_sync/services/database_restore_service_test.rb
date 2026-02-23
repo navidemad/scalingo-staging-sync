@@ -11,7 +11,6 @@ class DatabaseRestoreServiceTest < Minitest::Test
 
     ScalingoStagingSync.configure do |config|
       config.logger = @logger
-      config.postgis = false
     end
 
     @service = ScalingoStagingSync::Services::DatabaseRestoreService.new(
@@ -36,27 +35,6 @@ class DatabaseRestoreServiceTest < Minitest::Test
       assert_equal @logger, service.instance_variable_get(:@logger)
       refute_nil service.instance_variable_get(:@slack_notifier)
     end
-
-    def test_handles_postgis_url_conversion
-      ScalingoStagingSync.configure do |config|
-        config.postgis = true
-      end
-
-      url = "postgresql://user:pass@localhost/test_db"
-      service = ScalingoStagingSync::Services::DatabaseRestoreService.new(
-        url,
-        logger: @logger
-      )
-
-      assert_equal "postgisql://user:pass@localhost/test_db",
-                   service.instance_variable_get(:@database_url)
-      assert_equal "postgresql://user:pass@localhost/test_db",
-                   service.instance_variable_get(:@pg_url)
-    ensure
-      ScalingoStagingSync.configure do |config|
-        config.postgis = false
-      end
-    end
   end
 
   describe "restore!" do
@@ -67,7 +45,6 @@ class DatabaseRestoreServiceTest < Minitest::Test
       @database_url = "postgresql://user:pass@localhost/test_db"
       ScalingoStagingSync.configure do |config|
         config.logger = @logger
-        config.postgis = false
       end
       @service = ScalingoStagingSync::Services::DatabaseRestoreService.new(@database_url, logger: @logger)
     end
@@ -207,7 +184,6 @@ class DatabaseRestoreServiceTest < Minitest::Test
       @database_url = "postgresql://user:pass@localhost/test_db"
       ScalingoStagingSync.configure do |config|
         config.logger = @logger
-        config.postgis = false
       end
       @service = ScalingoStagingSync::Services::DatabaseRestoreService.new(@database_url, logger: @logger)
     end
@@ -245,7 +221,6 @@ class DatabaseRestoreServiceTest < Minitest::Test
       @database_url = "postgresql://user:pass@localhost/test_db"
       ScalingoStagingSync.configure do |config|
         config.logger = @logger
-        config.postgis = false
       end
       @service = ScalingoStagingSync::Services::DatabaseRestoreService.new(@database_url, logger: @logger)
     end
@@ -308,7 +283,6 @@ class DatabaseRestoreServiceTest < Minitest::Test
       @database_url = "postgresql://user:pass@localhost/test_db"
       ScalingoStagingSync.configure do |config|
         config.logger = @logger
-        config.postgis = false
       end
       @service = ScalingoStagingSync::Services::DatabaseRestoreService.new(@database_url, logger: @logger)
     end
@@ -371,7 +345,6 @@ class DatabaseRestoreServiceTest < Minitest::Test
       @database_url = "postgresql://user:pass@localhost/test_db"
       ScalingoStagingSync.configure do |config|
         config.logger = @logger
-        config.postgis = false
       end
       @service = ScalingoStagingSync::Services::DatabaseRestoreService.new(@database_url, logger: @logger)
     end

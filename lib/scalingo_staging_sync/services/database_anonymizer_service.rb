@@ -30,14 +30,8 @@ module ScalingoStagingSync
       ].freeze
 
       def initialize(database_url, parallel_connections: 3, logger: Rails.logger)
-        if ScalingoStagingSync.configuration.postgis
-          # Store both versions: postgis:// for Rails, postgres:// for PG.connect
-          @database_url = database_url.sub(/^postgres/, "postgis") # For Rails (handles PostGIS types)
-          @pg_url = database_url.sub(/^postgis/, "postgres") # For PG.connect
-        else
-          @database_url = database_url
-          @pg_url = database_url
-        end
+        @database_url = database_url
+        @pg_url = database_url
         @parallel_connections = parallel_connections
         @logger = logger
         @slack_notifier = Services::SlackNotificationService.new(logger: logger)
