@@ -167,8 +167,6 @@ Five pre-built strategies for common data types:
 
 #### Database Restoration
 - **PostgreSQL Support**: PostgreSQL 14.x, 15.x, 16.x
-- **PostGIS Support**: Optional PostGIS extension support
-  - Configuration: `postgis` (default: `false`)
 - **Smart Restore**: Handles both pg_dump and SQL formats
 - **Connection Pooling**: Efficient parallel connections for large databases
 
@@ -298,7 +296,6 @@ Five pre-built strategies for common data types:
 - `slack_channel` - Slack channel name (default: `nil`)
 - `slack_enabled` - Boolean to enable Slack notifications (default: `false`)
 - `seeds_file_path` - Path to seeds file (default: `nil`)
-- `postgis` - Boolean to enable PostGIS support (default: `false`)
 - `logger` - Custom logger (default: `Rails.logger`)
 - `temp_dir` - Temporary directory path (default: `Rails.root.join("tmp")`)
 
